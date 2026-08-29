@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             SudokuTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Sudoku",
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -45,6 +45,6 @@ fun Greeting(
 @Composable
 fun GreetingPreview() {
     SudokuTheme {
-        Greeting("Android")
+        Greeting("Sudoku")
     }
 }
