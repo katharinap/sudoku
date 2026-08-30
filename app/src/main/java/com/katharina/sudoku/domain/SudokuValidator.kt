@@ -1,5 +1,6 @@
 package com.katharina.sudoku.domain
 
+import com.katharina.sudoku.domain.model.Cell
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
 
@@ -10,20 +11,38 @@ object SudokuValidator {
      * It does not check if the cell already has a value, only if the new value would be valid.
      */
     fun isValidPlacement(board: SudokuBoard, row: Int, col: Int, value: Int): Boolean {
+        val cells = IntArray(81) { board.cells[it].value ?: 0 }
+        return isValidPlacement(cells, row, col, value)
+    }
+
+    /**
+     * Optimized version of [isValidPlacement] that works directly on an IntArray.
+     * 0 represents an empty cell.
+     */
+    fun isValidPlacement(cells: IntArray, row: Int, col: Int, value: Int): Boolean {
         // Check row
-        if (board.getRow(row).any { it.value == value && it.position.column != col }) {
-            return false
+        for (c in 0..8) {
+            if (c != col && cells[row * 9 + c] == value) {
+                return false
+            }
         }
 
         // Check column
-        if (board.getColumn(col).any { it.value == value && it.position.row != row }) {
-            return false
+        for (r in 0..8) {
+            if (r != row && cells[r * 9 + col] == value) {
+                return false
+            }
         }
 
         // Check box
-        val boxIndex = board.getBoxIndex(row, col)
-        if (board.getBox(boxIndex).any { it.value == value && (it.position.row != row || it.position.column != col) }) {
-            return false
+        val boxRowStart = (row / 3) * 3
+        val boxColStart = (col / 3) * 3
+        for (r in boxRowStart until boxRowStart + 3) {
+            for (c in boxColStart until boxColStart + 3) {
+                if ((r != row || c != col) && cells[r * 9 + c] == value) {
+                    return false
+                }
+            }
         }
 
         return true
@@ -33,11 +52,15 @@ object SudokuValidator {
      * Checks if the board is fully filled and all placements follow Sudoku rules.
      */
     fun isBoardComplete(board: SudokuBoard): Boolean {
-        if (board.cells.any { it.value == null }) return false
+        val cells = IntArray(81) { board.cells[it].value ?: 0 }
+        if (cells.any { it == 0 }) return false
 
-        return board.cells.all { cell ->
-            isValidPlacement(board, cell.position.row, cell.position.column, cell.value!!)
+        for (i in 0..80) {
+            if (!isValidPlacement(cells, i / 9, i % 9, cells[i])) {
+                return false
+            }
         }
+        return true
     }
 
     /**
@@ -45,29 +68,15 @@ object SudokuValidator {
      * A conflict is a cell whose value appears more than once in its row, column, or box.
      */
     fun findConflicts(board: SudokuBoard): List<Position> {
+        val cells = IntArray(81) { board.cells[it].value ?: 0 }
         val conflicts = mutableSetOf<Position>()
 
-        // Check rows
-        for (row in 0..8) {
-            val cellsInRow = board.getRow(row).filter { it.value != null }
-            cellsInRow.groupBy { it.value }.filter { it.value.size > 1 }.values.forEach { duplicatedCells ->
-                conflicts.addAll(duplicatedCells.map { it.position })
-            }
-        }
-
-        // Check columns
-        for (col in 0..8) {
-            val cellsInCol = board.getColumn(col).filter { it.value != null }
-            cellsInCol.groupBy { it.value }.filter { it.value.size > 1 }.values.forEach { duplicatedCells ->
-                conflicts.addAll(duplicatedCells.map { it.position })
-            }
-        }
-
-        // Check boxes
-        for (box in 0..8) {
-            val cellsInBox = board.getBox(box).filter { it.value != null }
-            cellsInBox.groupBy { it.value }.filter { it.value.size > 1 }.values.forEach { duplicatedCells ->
-                conflicts.addAll(duplicatedCells.map { it.position })
+        for (i in 0..80) {
+            val value = cells[i]
+            if (value != 0) {
+                if (!isValidPlacement(cells, i / 9, i % 9, value)) {
+                    conflicts.add(Position(i / 9, i % 9))
+                }
             }
         }
 
