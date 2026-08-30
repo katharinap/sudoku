@@ -48,14 +48,14 @@ Each step is scoped to be a single prompt/session for an AI coding assistant: on
 - Algorithm to generate a fully solved valid board (backtracking).
 - *Done when:* unit test generates N boards, asserts each is fully valid via 1.2's validator.
 
-**1.4 Puzzle carver (difficulty generator)**
-- Remove cells from a solved board while preserving unique solvability, parameterized by `Difficulty`.
-- Use a solver (see 1.5) to verify uniqueness.
-- *Done when:* unit test generates puzzles per difficulty and confirms unique solution + cell-count ranges match difficulty spec.
-
-**1.5 Solver (backtracking + optionally constraint propagation)**
-- `solve(board): SudokuBoard?` and `countSolutions(board, limit=2): Int` (for uniqueness checks in 1.4).
+**1.4 Solver (backtracking + optionally constraint propagation)**
+- `solve(board): SudokuBoard?` and `countSolutions(board, limit=2): Int`.
 - *Done when:* unit tests solve known puzzles (easy/hard/"world's hardest sudoku") within a time bound.
+
+**1.5 Puzzle carver (difficulty generator)**
+- Remove cells from a solved board while preserving unique solvability, parameterized by `Difficulty`.
+- Use the solver (from 1.4) to verify uniqueness.
+- *Done when:* unit test generates puzzles per difficulty and confirms unique solution + cell-count ranges match difficulty spec.
 
 **1.6 Hint engine**
 - Function returning the "next logical move" with a technique explanation (naked single, hidden single, etc. — start with naked/hidden singles only).
