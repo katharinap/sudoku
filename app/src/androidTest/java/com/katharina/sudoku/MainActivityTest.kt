@@ -11,7 +11,7 @@ class MainActivityTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun helloFromHilt_isDisplayed() {
-        composeTestRule.onNodeWithText("Hello Hello from Hilt!!").assertExists()
+    fun helloSudoku_isDisplayed() {
+        composeTestRule.onNodeWithText("Hello Sudoku!").assertExists()
     }
 }
