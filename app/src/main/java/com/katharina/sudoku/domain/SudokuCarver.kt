@@ -1,6 +1,5 @@
 package com.katharina.sudoku.domain
 
-import com.katharina.sudoku.domain.model.Cell
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.SudokuBoard
 import kotlin.random.Random

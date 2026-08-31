@@ -10,7 +10,7 @@ object SudokuGenerator {
      * Generates a fully solved, valid Sudoku board using backtracking and randomization.
      */
     fun generateSolvedBoard(): SudokuBoard {
-        val cells = IntArray(81) { 0 }
+        val cells = IntArray(81)
         fillBoard(cells, 0)
         val boardCells = cells.mapIndexed { index, value ->
             Cell(Position(index / 9, index % 9), value = value)

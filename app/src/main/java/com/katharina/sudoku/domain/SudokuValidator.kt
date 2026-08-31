@@ -1,6 +1,5 @@
 package com.katharina.sudoku.domain
 
-import com.katharina.sudoku.domain.model.Cell
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
 
@@ -22,14 +21,14 @@ object SudokuValidator {
     fun isValidPlacement(cells: IntArray, row: Int, col: Int, value: Int): Boolean {
         // Check row
         for (c in 0..8) {
-            if (c != col && cells[row * 9 + c] == value) {
+            if (c != col && cells[(row * 9) + c] == value) {
                 return false
             }
         }
 
         // Check column
         for (r in 0..8) {
-            if (r != row && cells[r * 9 + col] == value) {
+            if (r != row && cells[(r * 9) + col] == value) {
                 return false
             }
         }
@@ -39,7 +38,7 @@ object SudokuValidator {
         val boxColStart = (col / 3) * 3
         for (r in boxRowStart until boxRowStart + 3) {
             for (c in boxColStart until boxColStart + 3) {
-                if ((r != row || c != col) && cells[r * 9 + c] == value) {
+                if ((r != row || c != col) && cells[(r * 9) + c] == value) {
                     return false
                 }
             }
