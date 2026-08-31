@@ -41,6 +41,13 @@ data class SudokuBoard(
         return (row / 3) * 3 + (col / 3)
     }
 
+    fun withUpdatedCell(position: Position, update: (Cell) -> Cell): SudokuBoard {
+        val newCells = cells.map { cell ->
+            if (cell.position == position) update(cell) else cell
+        }
+        return SudokuBoard(newCells)
+    }
+
     companion object {
         fun empty(): SudokuBoard {
             val cells = (0..80).map { i ->
