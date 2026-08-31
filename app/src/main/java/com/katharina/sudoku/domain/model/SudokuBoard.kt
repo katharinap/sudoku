@@ -1,5 +1,8 @@
 package com.katharina.sudoku.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class SudokuBoard(
     val cells: List<Cell>
 ) {
