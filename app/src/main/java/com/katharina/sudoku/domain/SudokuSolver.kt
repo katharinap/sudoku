@@ -28,7 +28,14 @@ object SudokuSolver {
         if (SudokuValidator.findConflicts(board).isNotEmpty()) return 0
         
         val cells = IntArray(81) { board.cells[it].value ?: 0 }
-        return countSolutionsRecursive(cells, 0, limit, 0)
+        return countSolutions(cells, limit)
+    }
+
+    /**
+     * Optimized version of [countSolutions] that works directly on an IntArray.
+     */
+    fun countSolutions(cells: IntArray, limit: Int = 2): Int {
+        return countSolutionsRecursive(cells.copyOf(), 0, limit, 0)
     }
 
     private fun solveRecursive(cells: IntArray, index: Int): Boolean {
