@@ -97,6 +97,22 @@ class GameViewModel
             saveGame()
         }
 
+        fun onEraseInput() {
+            val state = _uiState.value
+            if (state.isPaused || state.isComplete) return
+            val position = state.selectedPosition ?: return
+            val cell = state.board.getCell(position)
+            if (cell.isFixed || cell.value == null && cell.notes.isEmpty()) return
+
+            pushToUndoStack(state.board)
+            val newBoard =
+                state.board.withUpdatedCell(position) {
+                    it.copy(value = null, notes = emptySet())
+                }
+            _uiState.update { it.copy(board = newBoard) }
+            saveGame()
+        }
+
         fun onToggleNoteMode() {
             _uiState.update { it.copy(isNoteModeEnabled = !it.isNoteModeEnabled) }
         }
