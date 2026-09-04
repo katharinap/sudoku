@@ -81,6 +81,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.core.ktx)
     testImplementation("androidx.test:core:1.6.1")
 
