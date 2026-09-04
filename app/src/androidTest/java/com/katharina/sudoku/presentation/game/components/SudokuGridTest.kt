@@ -34,4 +34,23 @@ class SudokuGridTest {
 
         assertEquals(Position(0, 0), clickedPosition)
     }
+
+    @Test
+    fun notesAreDisplayedWhenValueIsNull() {
+        val board = SudokuBoard.empty().withUpdatedCell(Position(0, 0)) {
+            it.copy(notes = setOf(1, 2, 9))
+        }
+
+        composeTestRule.setContent {
+            SudokuGrid(
+                board = board,
+                selectedPosition = null,
+                onCellClick = {}
+            )
+        }
+
+        composeTestRule.onNodeWithText("1").assertExists()
+        composeTestRule.onNodeWithText("2").assertExists()
+        composeTestRule.onNodeWithText("9").assertExists()
+    }
 }
