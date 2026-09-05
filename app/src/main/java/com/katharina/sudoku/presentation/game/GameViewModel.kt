@@ -41,7 +41,7 @@ class GameViewModel
         private val getHintUseCase: GetHintUseCase,
         private val repository: SudokuRepository,
         @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
-        savedStateHandle: SavedStateHandle,
+        private val savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(GameUiState())
         val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -51,6 +51,7 @@ class GameViewModel
         private var timerJob: Job? = null
 
         init {
+            val isInitialized = savedStateHandle.get<Boolean>("is_initialized") ?: false
             val difficultyArg = try {
                 savedStateHandle.toRoute<GameRoute>().difficulty
             } catch (e: Exception) {
@@ -60,23 +61,33 @@ class GameViewModel
             viewModelScope.launch {
                 val savedGame = repository.getGameState().first()
                 
-                if (difficultyArg != null) {
-                    // Force new game if difficulty is provided in route
+                if (!isInitialized && difficultyArg != null) {
+                    // Fresh navigation with difficulty -> Start new game
                     startNewGame(difficultyArg)
+                    savedStateHandle["is_initialized"] = true
                 } else if (savedGame != null) {
-                    // Continue existing game
+                    // Restoring from process death OR continuing from menu
+                    val savedRow = savedStateHandle.get<Int>("selected_row")
+                    val savedCol = savedStateHandle.get<Int>("selected_col")
+                    val restoredPosition = if (savedRow != null && savedCol != null) {
+                        Position(savedRow, savedCol)
+                    } else null
+
                     _uiState.update {
                         it.copy(
                             board = savedGame.board,
                             difficulty = savedGame.difficulty,
                             timerSeconds = savedGame.timerSeconds,
                             mistakeCount = savedGame.mistakes,
+                            selectedPosition = restoredPosition
                         )
                     }
+                    savedStateHandle["is_initialized"] = true
                     startTimer()
                 } else {
                     // Fallback
                     startNewGame(Difficulty.EASY)
+                    savedStateHandle["is_initialized"] = true
                 }
             }
         }
@@ -89,8 +100,11 @@ class GameViewModel
                     difficulty = difficulty,
                 )
             }
+            savedStateHandle["selected_position"] = null as Position?
             undoStack.clear()
             redoStack.clear()
+            savedStateHandle["selected_row"] = null as Int?
+            savedStateHandle["selected_col"] = null as Int?
             startTimer()
             saveGame()
 
@@ -105,6 +119,8 @@ class GameViewModel
         fun onCellSelected(position: Position) {
             if (_uiState.value.isPaused || _uiState.value.isComplete) return
             _uiState.update { it.copy(selectedPosition = position) }
+            savedStateHandle["selected_row"] = position.row
+            savedStateHandle["selected_col"] = position.column
         }
 
         fun onNumberInput(value: Int) {

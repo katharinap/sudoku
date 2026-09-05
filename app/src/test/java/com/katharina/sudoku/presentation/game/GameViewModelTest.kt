@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.Hint
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
@@ -37,7 +38,7 @@ class GameViewModelTest {
     private val checkWinUseCase: CheckWinUseCase = mockk()
     private val getHintUseCase: GetHintUseCase = mockk()
     private val repository: SudokuRepository = mockk()
-    private val savedStateHandle: SavedStateHandle = mockk(relaxed = true)
+    private val savedStateHandle = SavedStateHandle()
 
     private lateinit var viewModel: GameViewModel
     private val testDispatcher = StandardTestDispatcher()
@@ -295,6 +296,47 @@ class GameViewModelTest {
             coVerify { repository.updateStats(match { it.gamesWon == 1 }) }
         } finally {
             viewModel.clearForTest()
+        }
+    }
+
+    @Test
+    fun `restores state from repository on process death even with difficulty in route`() = runTest {
+        try {
+            val savedBoard = SudokuBoard.empty().withUpdatedCell(Position(0, 0)) { it.copy(value = 9) }
+            val savedGame = GameState(savedBoard, Difficulty.HARD, 100, 1)
+            
+            every { repository.getGameState() } returns flowOf(savedGame)
+            
+            // Simulate process death: is_initialized is true
+            val restoredHandle = SavedStateHandle(mapOf(
+                "difficulty" to Difficulty.HARD,
+                "is_initialized" to true,
+                "selected_row" to 1,
+                "selected_col" to 1
+            ))
+            
+            val restoredViewModel = GameViewModel(
+                generateNewGameUseCase,
+                validateMoveUseCase,
+                checkWinUseCase,
+                getHintUseCase,
+                repository,
+                testDispatcher,
+                restoredHandle
+            )
+
+            restoredViewModel.uiState.test {
+                val state = awaitItem()
+                // Should use the saved game, not a new one
+                assertThat(state.board).isEqualTo(savedBoard)
+                assertThat(state.timerSeconds).isEqualTo(100)
+                assertThat(state.mistakeCount).isEqualTo(1)
+                assertThat(state.selectedPosition).isEqualTo(Position(1, 1))
+            }
+            
+            restoredViewModel.clearForTest()
+        } finally {
+            // No need to clear main viewModel since we created a local one
         }
     }
 }
