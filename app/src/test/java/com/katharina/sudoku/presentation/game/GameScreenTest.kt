@@ -1,12 +1,12 @@
 package com.katharina.sudoku.presentation.game
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.Position
-import com.katharina.sudoku.domain.model.SudokuBoard
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +38,9 @@ class GameScreenTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onPauseResumeClick = {},
-                onEraseClick = {}
+                onEraseClick = {},
+                onPlayAgain = {},
+                onBackToMenu = {}
             )
         }
 
@@ -64,7 +66,9 @@ class GameScreenTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onPauseResumeClick = {},
-                onEraseClick = {}
+                onEraseClick = {},
+                onPlayAgain = {},
+                onBackToMenu = {}
             )
         }
 
@@ -87,11 +91,59 @@ class GameScreenTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onPauseResumeClick = { pauseClicked = true },
-                onEraseClick = {}
+                onEraseClick = {},
+                onPlayAgain = {},
+                onBackToMenu = {}
             )
         }
 
         composeTestRule.onNodeWithContentDescription("Pause").performClick()
         assert(pauseClicked)
+    }
+
+    @Test
+    fun pauseOverlayIsVisibleWhenPaused() {
+        val uiState = GameUiState(isPaused = true)
+
+        composeTestRule.setContent {
+            GameContent(
+                uiState = uiState,
+                onCellClick = {},
+                onNumberClick = {},
+                onUndoClick = {},
+                onRedoClick = {},
+                onHintClick = {},
+                onToggleNoteMode = {},
+                onPauseResumeClick = {},
+                onEraseClick = {},
+                onPlayAgain = {},
+                onBackToMenu = {}
+            )
+        }
+
+        composeTestRule.onNodeWithText("Game Paused").assertIsDisplayed()
+    }
+
+    @Test
+    fun winDialogIsVisibleWhenComplete() {
+        val uiState = GameUiState(isComplete = true)
+
+        composeTestRule.setContent {
+            GameContent(
+                uiState = uiState,
+                onCellClick = {},
+                onNumberClick = {},
+                onUndoClick = {},
+                onRedoClick = {},
+                onHintClick = {},
+                onToggleNoteMode = {},
+                onPauseResumeClick = {},
+                onEraseClick = {},
+                onPlayAgain = {},
+                onBackToMenu = {}
+            )
+        }
+
+        composeTestRule.onNodeWithText("Congratulations!").assertExists()
     }
 }

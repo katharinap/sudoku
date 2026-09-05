@@ -1,6 +1,7 @@
 package com.katharina.sudoku.presentation.game
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +27,9 @@ import com.katharina.sudoku.R
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.presentation.game.components.GameControls
 import com.katharina.sudoku.presentation.game.components.NumberPad
+import com.katharina.sudoku.presentation.game.components.PauseOverlay
 import com.katharina.sudoku.presentation.game.components.SudokuGrid
+import com.katharina.sudoku.presentation.game.components.WinDialog
 import com.katharina.sudoku.presentation.game.util.formatSeconds
 import com.katharina.sudoku.ui.theme.SudokuTheme
 
@@ -47,6 +50,8 @@ fun GameScreen(
         onToggleNoteMode = viewModel::onToggleNoteMode,
         onPauseResumeClick = viewModel::onPauseResume,
         onEraseClick = viewModel::onEraseInput,
+        onPlayAgain = { viewModel.startNewGame(uiState.difficulty) },
+        onBackToMenu = { /* TODO: Navigate to Menu */ },
         modifier = modifier
     )
 }
@@ -63,6 +68,8 @@ fun GameContent(
     onToggleNoteMode: () -> Unit,
     onPauseResumeClick: () -> Unit,
     onEraseClick: () -> Unit,
+    onPlayAgain: () -> Unit,
+    onBackToMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -120,12 +127,18 @@ fun GameContent(
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SudokuGrid(
-                board = uiState.board,
-                selectedPosition = uiState.selectedPosition,
-                onCellClick = onCellClick,
-                modifier = Modifier.weight(1f)
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                SudokuGrid(
+                    board = uiState.board,
+                    selectedPosition = uiState.selectedPosition,
+                    onCellClick = onCellClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                if (uiState.isPaused) {
+                    PauseOverlay(onResumeClick = onPauseResumeClick)
+                }
+            }
 
             GameControls(
                 onUndoClick = onUndoClick,
@@ -140,6 +153,15 @@ fun GameContent(
                 onEraseClick = onEraseClick
             )
         }
+    }
+
+    if (uiState.isComplete) {
+        WinDialog(
+            timerSeconds = uiState.timerSeconds,
+            mistakeCount = uiState.mistakeCount,
+            onPlayAgain = onPlayAgain,
+            onBackToMenu = onBackToMenu
+        )
     }
 }
 
@@ -156,7 +178,9 @@ fun GameScreenPreview() {
             onHintClick = {},
             onToggleNoteMode = {},
             onPauseResumeClick = {},
-            onEraseClick = {}
+            onEraseClick = {},
+            onPlayAgain = {},
+            onBackToMenu = {}
         )
     }
 }
