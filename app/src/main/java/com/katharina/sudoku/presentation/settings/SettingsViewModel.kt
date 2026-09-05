@@ -1,0 +1,73 @@
+package com.katharina.sudoku.presentation.settings
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.katharina.sudoku.data.local.SettingsDataSource
+import com.katharina.sudoku.domain.model.Difficulty
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val dataSource: SettingsDataSource
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    init {
+        dataSource.userSettings
+            .onEach { settings ->
+                _uiState.update {
+                    it.copy(
+                        settings = settings,
+                        isLoading = false
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun onDarkModeChanged(isDarkMode: Boolean?) {
+        viewModelScope.launch {
+            dataSource.updateDarkMode(isDarkMode)
+        }
+    }
+
+    fun onSoundChanged(isEnabled: Boolean) {
+        viewModelScope.launch {
+            dataSource.updateSoundEnabled(isEnabled)
+        }
+    }
+
+    fun onHapticsChanged(isEnabled: Boolean) {
+        viewModelScope.launch {
+            dataSource.updateHapticsEnabled(isEnabled)
+        }
+    }
+
+    fun onDefaultDifficultyChanged(difficulty: Difficulty) {
+        viewModelScope.launch {
+            dataSource.updateDefaultDifficulty(difficulty)
+        }
+    }
+
+    fun onHighlightSameNumbersChanged(isEnabled: Boolean) {
+        viewModelScope.launch {
+            dataSource.updateHighlightSameNumbers(isEnabled)
+        }
+    }
+
+    fun onAutoClearNotesChanged(isEnabled: Boolean) {
+        viewModelScope.launch {
+            dataSource.updateAutoClearNotes(isEnabled)
+        }
+    }
+}
