@@ -12,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +26,8 @@ fun NumberPad(
     onEraseClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -36,7 +40,10 @@ fun NumberPad(
             for (i in 1..5) {
                 NumberButton(
                     number = i,
-                    onClick = { onNumberClick(i) },
+                    onClick = { 
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onNumberClick(i) 
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -50,12 +57,18 @@ fun NumberPad(
             for (i in 6..9) {
                 NumberButton(
                     number = i,
-                    onClick = { onNumberClick(i) },
+                    onClick = { 
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onNumberClick(i) 
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }
             FilledTonalButton(
-                onClick = onEraseClick,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onEraseClick()
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
@@ -245,7 +246,18 @@ class GameViewModel
                     it.copy(board = newBoard, isComplete = isComplete)
                 }
             } else {
-                _uiState.update { it.copy(mistakeCount = it.mistakeCount + 1) }
+                _uiState.update {
+                    it.copy(
+                        mistakeCount = it.mistakeCount + 1,
+                        errorPosition = position
+                    )
+                }
+                viewModelScope.launch {
+                    delay(500.milliseconds)
+                    if (_uiState.value.errorPosition == position) {
+                        _uiState.update { it.copy(errorPosition = null) }
+                    }
+                }
             }
         }
 

@@ -19,15 +19,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
+import com.katharina.sudoku.presentation.game.GameUiState
 import com.katharina.sudoku.ui.theme.SudokuTheme
 
 @Composable
 fun SudokuGrid(
-    board: SudokuBoard,
-    selectedPosition: Position?,
+    uiState: GameUiState,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val board = uiState.board
+    val selectedPosition = uiState.selectedPosition
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -60,13 +63,15 @@ fun SudokuGrid(
                         val isSameNumberHighlighted = selectedCell?.value != null && 
                                 cell.value == selectedCell.value && 
                                 !isSelected
+                        
+                        val isError = position == uiState.errorPosition
 
                         SudokuCell(
                             cell = cell,
                             isSelected = isSelected,
                             isPeerHighlighted = isPeerHighlighted,
                             isSameNumberHighlighted = isSameNumberHighlighted,
-                            isError = false, // Mistake logic handled in ViewModel
+                            isError = isError,
                             onClick = { onCellClick(position) },
                             modifier = Modifier
                                 .weight(1f)
@@ -108,15 +113,17 @@ fun SudokuGrid(
 @Preview(showBackground = true)
 @Composable
 fun SudokuGridPreview() {
-    val board = SudokuBoard.empty()
-        .withUpdatedCell(Position(0, 0)) { it.copy(value = 5, isFixed = true) }
-        .withUpdatedCell(Position(4, 4)) { it.copy(value = 5) }
-        .withUpdatedCell(Position(1, 1)) { it.copy(notes = setOf(1, 2, 9)) }
+    val uiState = GameUiState(
+        board = SudokuBoard.empty()
+            .withUpdatedCell(Position(0, 0)) { it.copy(value = 5, isFixed = true) }
+            .withUpdatedCell(Position(4, 4)) { it.copy(value = 5) }
+            .withUpdatedCell(Position(1, 1)) { it.copy(notes = setOf(1, 2, 9)) },
+        selectedPosition = Position(4, 4)
+    )
 
     SudokuTheme {
         SudokuGrid(
-            board = board,
-            selectedPosition = Position(4, 4),
+            uiState = uiState,
             onCellClick = {},
             modifier = Modifier.fillMaxWidth().padding(16.dp)
         )

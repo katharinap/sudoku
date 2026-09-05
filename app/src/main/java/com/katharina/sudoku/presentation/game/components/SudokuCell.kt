@@ -1,25 +1,56 @@
 package com.katharina.sudoku.presentation.game.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.katharina.sudoku.domain.model.Cell
 import com.katharina.sudoku.domain.model.Position
-import com.katharina.sudoku.ui.theme.*
+import com.katharina.sudoku.ui.theme.ErrorNumberDark
+import com.katharina.sudoku.ui.theme.ErrorNumberLight
+import com.katharina.sudoku.ui.theme.FixedNumberDark
+import com.katharina.sudoku.ui.theme.FixedNumberLight
+import com.katharina.sudoku.ui.theme.PeerHighlightDark
+import com.katharina.sudoku.ui.theme.PeerHighlightLight
+import com.katharina.sudoku.ui.theme.SameNumberHighlightDark
+import com.katharina.sudoku.ui.theme.SameNumberHighlightLight
+import com.katharina.sudoku.ui.theme.SelectedCellHighlightDark
+import com.katharina.sudoku.ui.theme.SelectedCellHighlightLight
+import com.katharina.sudoku.ui.theme.SudokuTheme
+import com.katharina.sudoku.ui.theme.UserNumberDark
+import com.katharina.sudoku.ui.theme.UserNumberLight
 
 @Composable
 fun SudokuCell(
@@ -44,6 +75,24 @@ fun SudokuCell(
         else -> if (isSystemInDarkTheme()) UserNumberDark else UserNumberLight
     }
 
+    val shakeOffset = remember { Animatable(0f) }
+    LaunchedEffect(isError) {
+        if (isError) {
+            shakeOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = keyframes {
+                    durationMillis = 300
+                    (-10f) at 50 using LinearEasing
+                    10f at 100 using LinearEasing
+                    (-10f) at 150 using LinearEasing
+                    10f at 200 using LinearEasing
+                    (-5f) at 250 using LinearEasing
+                    0f at 300 using LinearEasing
+                }
+            )
+        }
+    }
+
     val cellDescription = buildString {
         if (cell.isFixed) append("Fixed ")
         if (isError) append("Error ")
@@ -62,6 +111,7 @@ fun SudokuCell(
     Box(
         modifier = modifier
             .aspectRatio(1f)
+            .graphicsLayer(translationX = shakeOffset.value)
             .background(backgroundColor)
             .semantics {
                 contentDescription = cellDescription
@@ -70,17 +120,25 @@ fun SudokuCell(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        if (cell.value != null) {
-            Text(
-                text = cell.value.toString(),
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 28.sp,
-                    fontWeight = if (cell.isFixed) FontWeight.Bold else FontWeight.Normal
-                ),
-                color = textColor
-            )
-        } else if (cell.notes.isNotEmpty()) {
-            NotesGrid(notes = cell.notes)
+        AnimatedContent(
+            targetState = cell.value,
+            transitionSpec = {
+                (scaleIn(animationSpec = tween(200)) + fadeIn()) togetherWith fadeOut()
+            },
+            label = "CellValueAnimation"
+        ) { value ->
+            if (value != null) {
+                Text(
+                    text = value.toString(),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 28.sp,
+                        fontWeight = if (cell.isFixed) FontWeight.Bold else FontWeight.Normal
+                    ),
+                    color = textColor
+                )
+            } else if (cell.notes.isNotEmpty()) {
+                NotesGrid(notes = cell.notes)
+            }
         }
     }
 }

@@ -12,5 +12,6 @@ data class GameUiState(
     val mistakeCount: Int = 0,
     val difficulty: Difficulty = Difficulty.EASY,
     val isComplete: Boolean = false,
-    val isPaused: Boolean = false
+    val isPaused: Boolean = false,
+    val errorPosition: Position? = null
 )
