@@ -31,16 +31,20 @@ import com.katharina.sudoku.ui.theme.SudokuTheme
 @Composable
 fun MenuScreen(
     viewModel: MenuViewModel,
+    onContinueClick: () -> Unit,
+    onNewGameClick: (Difficulty) -> Unit,
+    onStatsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     MenuContent(
         uiState = uiState,
-        onContinueClick = viewModel::onContinueGame,
-        onNewGameClick = viewModel::onNewGame,
-        onStatsClick = { /* TODO: Navigate to Stats */ },
-        onSettingsClick = { /* TODO: Navigate to Settings */ },
+        onContinueClick = onContinueClick,
+        onNewGameClick = onNewGameClick,
+        onStatsClick = onStatsClick,
+        onSettingsClick = onSettingsClick,
         modifier = modifier
     )
 }

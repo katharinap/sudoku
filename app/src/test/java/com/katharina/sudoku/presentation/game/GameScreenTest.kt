@@ -40,7 +40,8 @@ class GameScreenTest {
                 onPauseResumeClick = {},
                 onEraseClick = {},
                 onPlayAgain = {},
-                onBackToMenu = {}
+                onBackToMenu = {},
+                onBackClick = {}
             )
         }
 
@@ -68,7 +69,8 @@ class GameScreenTest {
                 onPauseResumeClick = {},
                 onEraseClick = {},
                 onPlayAgain = {},
-                onBackToMenu = {}
+                onBackToMenu = {},
+                onBackClick = {}
             )
         }
 
@@ -93,7 +95,8 @@ class GameScreenTest {
                 onPauseResumeClick = { pauseClicked = true },
                 onEraseClick = {},
                 onPlayAgain = {},
-                onBackToMenu = {}
+                onBackToMenu = {},
+                onBackClick = {}
             )
         }
 
@@ -117,7 +120,8 @@ class GameScreenTest {
                 onPauseResumeClick = {},
                 onEraseClick = {},
                 onPlayAgain = {},
-                onBackToMenu = {}
+                onBackToMenu = {},
+                onBackClick = {}
             )
         }
 
@@ -140,7 +144,8 @@ class GameScreenTest {
                 onPauseResumeClick = {},
                 onEraseClick = {},
                 onPlayAgain = {},
-                onBackToMenu = {}
+                onBackToMenu = {},
+                onBackClick = {}
             )
         }
 

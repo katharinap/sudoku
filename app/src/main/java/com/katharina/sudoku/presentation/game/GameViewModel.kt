@@ -1,5 +1,6 @@
 package com.katharina.sudoku.presentation.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.katharina.sudoku.di.DefaultDispatcher
@@ -12,7 +13,9 @@ import com.katharina.sudoku.domain.usecase.CheckWinUseCase
 import com.katharina.sudoku.domain.usecase.GenerateNewGameUseCase
 import com.katharina.sudoku.domain.usecase.GetHintUseCase
 import com.katharina.sudoku.domain.usecase.ValidateMoveUseCase
+import com.katharina.sudoku.presentation.navigation.GameRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.navigation.toRoute
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,6 +39,7 @@ class GameViewModel
         private val getHintUseCase: GetHintUseCase,
         private val repository: SudokuRepository,
         @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+        savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(GameUiState())
         val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -45,9 +49,20 @@ class GameViewModel
         private var timerJob: Job? = null
 
         init {
+            val difficultyArg = try {
+                savedStateHandle.toRoute<GameRoute>().difficulty
+            } catch (e: Exception) {
+                null
+            }
+            
             viewModelScope.launch {
                 val savedGame = repository.getGameState().first()
-                if (savedGame != null) {
+                
+                if (difficultyArg != null) {
+                    // Force new game if difficulty is provided in route
+                    startNewGame(difficultyArg)
+                } else if (savedGame != null) {
+                    // Continue existing game
                     _uiState.update {
                         it.copy(
                             board = savedGame.board,
@@ -58,6 +73,7 @@ class GameViewModel
                     }
                     startTimer()
                 } else {
+                    // Fallback
                     startNewGame(Difficulty.EASY)
                 }
             }

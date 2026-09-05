@@ -36,6 +36,7 @@ import com.katharina.sudoku.ui.theme.SudokuTheme
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -51,7 +52,8 @@ fun GameScreen(
         onPauseResumeClick = viewModel::onPauseResume,
         onEraseClick = viewModel::onEraseInput,
         onPlayAgain = { viewModel.startNewGame(uiState.difficulty) },
-        onBackToMenu = { /* TODO: Navigate to Menu */ },
+        onBackToMenu = onBackClick,
+        onBackClick = onBackClick,
         modifier = modifier
     )
 }
@@ -70,6 +72,7 @@ fun GameContent(
     onEraseClick: () -> Unit,
     onPlayAgain: () -> Unit,
     onBackToMenu: () -> Unit,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -113,6 +116,14 @@ fun GameContent(
                                 contentDescription = if (uiState.isPaused) "Resume" else "Pause"
                             )
                         }
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_arrow_back),
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -180,7 +191,8 @@ fun GameScreenPreview() {
             onPauseResumeClick = {},
             onEraseClick = {},
             onPlayAgain = {},
-            onBackToMenu = {}
+            onBackToMenu = {},
+            onBackClick = {}
         )
     }
 }
