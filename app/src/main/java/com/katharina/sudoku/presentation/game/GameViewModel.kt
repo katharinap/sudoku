@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.katharina.sudoku.di.DefaultDispatcher
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.GameState
+import com.katharina.sudoku.domain.model.GameStats
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
 import com.katharina.sudoku.domain.repository.SudokuRepository
@@ -92,6 +93,13 @@ class GameViewModel
             redoStack.clear()
             startTimer()
             saveGame()
+
+            viewModelScope.launch {
+                val allStats = repository.getStats().first()
+                val currentStats = allStats.find { it.difficulty == difficulty }
+                    ?: GameStats(difficulty, 0, 0, 0)
+                repository.updateStats(currentStats.copy(gamesPlayed = currentStats.gamesPlayed + 1))
+            }
         }
 
         fun onCellSelected(position: Position) {
@@ -153,6 +161,9 @@ class GameViewModel
                     )
                 }
                 saveGame()
+                if (isComplete) {
+                    onGameWon()
+                }
             }
         }
 
@@ -209,6 +220,25 @@ class GameViewModel
             onCleared()
         }
 
+        private fun onGameWon() {
+            val state = _uiState.value
+            viewModelScope.launch {
+                val allStats = repository.getStats().first()
+                val currentStats = allStats.find { it.difficulty == state.difficulty }
+                    ?: GameStats(state.difficulty, 0, 0, 0L)
+
+                val newStats = currentStats.copy(
+                    gamesWon = currentStats.gamesWon + 1,
+                    bestTimeSeconds = if (currentStats.bestTimeSeconds == 0L || state.timerSeconds < currentStats.bestTimeSeconds) {
+                        state.timerSeconds
+                    } else {
+                        currentStats.bestTimeSeconds
+                    }
+                )
+                repository.updateStats(newStats)
+            }
+        }
+
         private fun saveGame() {
             val state = _uiState.value
             if (state.isComplete) {
@@ -244,6 +274,9 @@ class GameViewModel
                 val isComplete = checkWinUseCase(newBoard)
                 _uiState.update {
                     it.copy(board = newBoard, isComplete = isComplete)
+                }
+                if (isComplete) {
+                    onGameWon()
                 }
             } else {
                 _uiState.update {

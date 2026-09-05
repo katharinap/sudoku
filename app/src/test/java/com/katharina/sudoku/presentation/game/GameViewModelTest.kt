@@ -47,7 +47,10 @@ class GameViewModelTest {
         Dispatchers.setMain(testDispatcher)
         every { generateNewGameUseCase(any()) } returns SudokuBoard.empty()
         every { repository.getGameState() } returns flowOf(null)
+        every { repository.getStats() } returns flowOf(emptyList())
         coEvery { repository.saveGameState(any()) } returns Unit
+        coEvery { repository.updateStats(any()) } returns Unit
+        coEvery { repository.clearSavedGame() } returns Unit
 
         viewModel = GameViewModel(
             generateNewGameUseCase,
@@ -271,6 +274,25 @@ class GameViewModelTest {
             runCurrent()
 
             coVerify { repository.saveGameState(any()) }
+        } finally {
+            viewModel.clearForTest()
+        }
+    }
+
+    @Test
+    fun `stats are updated when game is won`() = runTest {
+        try {
+            val position = Position(0, 0)
+            val value = 5
+            every { validateMoveUseCase(any(), 0, 0, value) } returns true
+            every { checkWinUseCase(any()) } returns true
+            every { repository.getStats() } returns flowOf(emptyList())
+
+            viewModel.onCellSelected(position)
+            viewModel.onNumberInput(value)
+            runCurrent()
+
+            coVerify { repository.updateStats(match { it.gamesWon == 1 }) }
         } finally {
             viewModel.clearForTest()
         }
