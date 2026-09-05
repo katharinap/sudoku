@@ -13,6 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.katharina.sudoku.domain.model.Position
@@ -26,7 +28,13 @@ fun SudokuGrid(
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.aspectRatio(1f)) {
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .semantics {
+                contentDescription = "Sudoku board, 9 rows by 9 columns"
+            }
+    ) {
         val outlineColor = MaterialTheme.colorScheme.outline
         val outlineVariant = MaterialTheme.colorScheme.outlineVariant
 

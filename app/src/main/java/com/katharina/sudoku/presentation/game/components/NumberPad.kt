@@ -12,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.katharina.sudoku.ui.theme.SudokuTheme
@@ -60,7 +62,13 @@ fun NumberPad(
                 shape = MaterialTheme.shapes.small,
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text(text = "⌫", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "⌫",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Erase entry"
+                    }
+                )
             }
         }
     }
