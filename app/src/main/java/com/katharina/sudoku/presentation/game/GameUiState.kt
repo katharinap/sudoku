@@ -1,9 +1,11 @@
 package com.katharina.sudoku.presentation.game
 
+import androidx.compose.runtime.Immutable
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
 
+@Immutable
 data class GameUiState(
     val board: SudokuBoard = SudokuBoard.empty(),
     val selectedPosition: Position? = null,

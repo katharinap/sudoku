@@ -1,8 +1,10 @@
 package com.katharina.sudoku.domain.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Immutable
 data class SudokuBoard(
     val cells: List<Cell>
 ) {
