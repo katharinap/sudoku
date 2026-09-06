@@ -3,13 +3,14 @@ package com.katharina.sudoku.presentation.game
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.katharina.sudoku.di.DefaultDispatcher
+import com.katharina.sudoku.domain.SudokuValidator
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.GameStats
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
-import com.katharina.sudoku.domain.SudokuValidator
 import com.katharina.sudoku.domain.repository.SudokuRepository
 import com.katharina.sudoku.domain.usecase.CheckWinUseCase
 import com.katharina.sudoku.domain.usecase.GenerateNewGameUseCase
@@ -17,7 +18,6 @@ import com.katharina.sudoku.domain.usecase.GetHintUseCase
 import com.katharina.sudoku.domain.usecase.ValidateMoveUseCase
 import com.katharina.sudoku.presentation.navigation.GameRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import androidx.navigation.toRoute
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -53,15 +53,16 @@ class GameViewModel
 
         init {
             val isInitialized = savedStateHandle.get<Boolean>("is_initialized") ?: false
-            val difficultyArg = try {
-                savedStateHandle.toRoute<GameRoute>().difficulty
-            } catch (e: Exception) {
-                null
-            }
-            
+            val difficultyArg =
+                try {
+                    savedStateHandle.toRoute<GameRoute>().difficulty
+                } catch (e: Exception) {
+                    null
+                }
+
             viewModelScope.launch {
                 val savedGame = repository.getGameState().first()
-                
+
                 if (!isInitialized && difficultyArg != null) {
                     // Fresh navigation with difficulty -> Start new game
                     startNewGame(difficultyArg)
@@ -70,9 +71,12 @@ class GameViewModel
                     // Restoring from process death OR continuing from menu
                     val savedRow = savedStateHandle.get<Int>("selected_row")
                     val savedCol = savedStateHandle.get<Int>("selected_col")
-                    val restoredPosition = if (savedRow != null && savedCol != null) {
-                        Position(savedRow, savedCol)
-                    } else null
+                    val restoredPosition =
+                        if (savedRow != null && savedCol != null) {
+                            Position(savedRow, savedCol)
+                        } else {
+                            null
+                        }
 
                     _uiState.update {
                         it.copy(
@@ -80,7 +84,7 @@ class GameViewModel
                             difficulty = savedGame.difficulty,
                             timerSeconds = savedGame.timerSeconds,
                             mistakeCount = savedGame.mistakes,
-                            selectedPosition = restoredPosition
+                            selectedPosition = restoredPosition,
                         )
                     }
                     savedStateHandle["is_initialized"] = true
@@ -111,8 +115,9 @@ class GameViewModel
 
             viewModelScope.launch {
                 val allStats = repository.getStats().first()
-                val currentStats = allStats.find { it.difficulty == difficulty }
-                    ?: GameStats(difficulty, 0, 0, 0)
+                val currentStats =
+                    allStats.find { it.difficulty == difficulty }
+                        ?: GameStats(difficulty, 0, 0, 0)
                 repository.updateStats(currentStats.copy(gamesPlayed = currentStats.gamesPlayed + 1))
             }
         }
@@ -144,7 +149,7 @@ class GameViewModel
             if (state.isPaused || state.isComplete) return
             val position = state.selectedPosition ?: return
             val cell = state.board.getCell(position)
-            if (cell.isFixed || cell.value == null && cell.notes.isEmpty()) return
+            if (cell.isFixed || ((cell.value == null) && cell.notes.isEmpty())) return
 
             pushToUndoStack(state.board)
             val newBoard =
@@ -218,11 +223,13 @@ class GameViewModel
             val currentState = _uiState.value
             if (currentState.isComplete) return
 
-            val originalBoard = SudokuBoard(
-                cells = currentState.board.cells.map { cell ->
-                    if (cell.isFixed) cell else cell.copy(value = null, notes = emptySet())
-                }
-            )
+            val originalBoard =
+                SudokuBoard(
+                    cells =
+                        currentState.board.cells.map { cell ->
+                            if (cell.isFixed) cell else cell.copy(value = null, notes = emptySet())
+                        },
+                )
 
             _uiState.update {
                 it.copy(
@@ -231,7 +238,7 @@ class GameViewModel
                     mistakeCount = 0,
                     selectedPosition = null,
                     errorPosition = null,
-                    conflictPositions = emptySet()
+                    conflictPositions = emptySet(),
                 )
             }
             undoStack.clear()
@@ -291,17 +298,20 @@ class GameViewModel
             val state = _uiState.value
             viewModelScope.launch {
                 val allStats = repository.getStats().first()
-                val currentStats = allStats.find { it.difficulty == state.difficulty }
-                    ?: GameStats(state.difficulty, 0, 0, 0L)
+                val currentStats =
+                    allStats.find { it.difficulty == state.difficulty }
+                        ?: GameStats(state.difficulty, 0, 0, 0L)
 
-                val newStats = currentStats.copy(
-                    gamesWon = currentStats.gamesWon + 1,
-                    bestTimeSeconds = if (currentStats.bestTimeSeconds == 0L || state.timerSeconds < currentStats.bestTimeSeconds) {
-                        state.timerSeconds
-                    } else {
-                        currentStats.bestTimeSeconds
-                    }
-                )
+                val newStats =
+                    currentStats.copy(
+                        gamesWon = currentStats.gamesWon + 1,
+                        bestTimeSeconds =
+                            if (currentStats.bestTimeSeconds == 0L || state.timerSeconds < currentStats.bestTimeSeconds) {
+                                state.timerSeconds
+                            } else {
+                                currentStats.bestTimeSeconds
+                            },
+                    )
                 repository.updateStats(newStats)
             }
         }
@@ -349,7 +359,7 @@ class GameViewModel
                 _uiState.update {
                     it.copy(
                         mistakeCount = it.mistakeCount + 1,
-                        errorPosition = position
+                        errorPosition = position,
                     )
                 }
                 viewModelScope.launch {
