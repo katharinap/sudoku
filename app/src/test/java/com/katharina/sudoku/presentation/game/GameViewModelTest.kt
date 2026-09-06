@@ -53,15 +53,16 @@ class GameViewModelTest {
         coEvery { repository.updateStats(any()) } returns Unit
         coEvery { repository.clearSavedGame() } returns Unit
 
-        viewModel = GameViewModel(
-            generateNewGameUseCase,
-            validateMoveUseCase,
-            checkWinUseCase,
-            getHintUseCase,
-            repository,
-            testDispatcher,
-            savedStateHandle
-        )
+        viewModel =
+            GameViewModel(
+                generateNewGameUseCase,
+                validateMoveUseCase,
+                checkWinUseCase,
+                getHintUseCase,
+                repository,
+                testDispatcher,
+                savedStateHandle,
+            )
     }
 
     @AfterEach
@@ -73,270 +74,301 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `initial state is correct`() = runTest {
-        try {
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.difficulty).isEqualTo(Difficulty.EASY)
-                assertThat(state.board).isEqualTo(SudokuBoard.empty())
+    fun `initial state is correct`() =
+        runTest {
+            try {
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.difficulty).isEqualTo(Difficulty.EASY)
+                    assertThat(state.board).isEqualTo(SudokuBoard.empty())
+                }
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `selecting a cell updates state`() = runTest {
-        try {
-            val position = Position(1, 1)
-            viewModel.onCellSelected(position)
+    fun `selecting a cell updates state`() =
+        runTest {
+            try {
+                val position = Position(1, 1)
+                viewModel.onCellSelected(position)
 
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.selectedPosition).isEqualTo(position)
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.selectedPosition).isEqualTo(position)
+                }
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `entering valid number updates board`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns true
-            every { checkWinUseCase(any()) } returns false
+    fun `entering valid number updates board`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns true
+                every { checkWinUseCase(any()) } returns false
 
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
 
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.board.getCell(position).value).isEqualTo(value)
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.board.getCell(position).value).isEqualTo(value)
+                }
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `entering invalid number increments mistakes`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns false
+    fun `entering invalid number increments mistakes`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns false
 
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
 
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.mistakeCount).isEqualTo(1)
-                assertThat(state.board.getCell(position).value).isNull()
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.mistakeCount).isEqualTo(1)
+                    assertThat(state.board.getCell(position).value).isNull()
+                }
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `toggling note mode updates state`() = runTest {
-        try {
-            viewModel.onToggleNoteMode()
-            assertThat(viewModel.uiState.value.isNoteModeEnabled).isTrue()
+    fun `toggling note mode updates state`() =
+        runTest {
+            try {
+                viewModel.onToggleNoteMode()
+                assertThat(viewModel.uiState.value.isNoteModeEnabled).isTrue()
 
-            viewModel.onToggleNoteMode()
-            assertThat(viewModel.uiState.value.isNoteModeEnabled).isFalse()
-        } finally {
-            viewModel.clearForTest()
-        }
-    }
-
-    @Test
-    fun `entering notes updates cell notes`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            viewModel.onCellSelected(position)
-            viewModel.onToggleNoteMode()
-            viewModel.onNumberInput(value)
-
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.board.getCell(position).notes).contains(value)
+                viewModel.onToggleNoteMode()
+                assertThat(viewModel.uiState.value.isNoteModeEnabled).isFalse()
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `undo reverts to previous board state`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns true
-            every { checkWinUseCase(any()) } returns false
+    fun `entering notes updates cell notes`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                viewModel.onCellSelected(position)
+                viewModel.onToggleNoteMode()
+                viewModel.onNumberInput(value)
 
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
-            assertThat(viewModel.uiState.value.board.getCell(position).value).isEqualTo(value)
-
-            viewModel.onUndo()
-            assertThat(viewModel.uiState.value.board.getCell(position).value).isNull()
-        } finally {
-            viewModel.clearForTest()
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.board.getCell(position).notes).contains(value)
+                }
+            } finally {
+                viewModel.clearForTest()
+            }
         }
-    }
 
     @Test
-    fun `redo reapplies reverted board state`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns true
-            every { checkWinUseCase(any()) } returns false
+    fun `undo reverts to previous board state`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns true
+                every { checkWinUseCase(any()) } returns false
 
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
-            viewModel.onUndo()
-            viewModel.onRedo()
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(position)
+                        .value,
+                ).isEqualTo(value)
 
-            assertThat(viewModel.uiState.value.board.getCell(position).value).isEqualTo(value)
-        } finally {
-            viewModel.clearForTest()
+                viewModel.onUndo()
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(position)
+                        .value,
+                ).isNull()
+            } finally {
+                viewModel.clearForTest()
+            }
         }
-    }
 
     @Test
-    fun `pausing game updates state`() = runTest {
-        try {
-            viewModel.onPauseResume()
-            assertThat(viewModel.uiState.value.isPaused).isTrue()
+    fun `redo reapplies reverted board state`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns true
+                every { checkWinUseCase(any()) } returns false
 
-            viewModel.onPauseResume()
-            assertThat(viewModel.uiState.value.isPaused).isFalse()
-        } finally {
-            viewModel.clearForTest()
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
+                viewModel.onUndo()
+                viewModel.onRedo()
+
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(position)
+                        .value,
+                ).isEqualTo(value)
+            } finally {
+                viewModel.clearForTest()
+            }
         }
-    }
 
     @Test
-    fun `timer increments over time`() = runTest {
-        try {
-            viewModel.uiState.test {
-                // Drop initial state
-                assertThat(awaitItem().timerSeconds).isEqualTo(0)
+    fun `pausing game updates state`() =
+        runTest {
+            try {
+                viewModel.onPauseResume()
+                assertThat(viewModel.uiState.value.isPaused).isTrue()
 
-                advanceTimeBy(1.seconds)
+                viewModel.onPauseResume()
+                assertThat(viewModel.uiState.value.isPaused).isFalse()
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
+    fun `timer increments over time`() =
+        runTest {
+            try {
+                viewModel.uiState.test {
+                    // Drop initial state
+                    assertThat(awaitItem().timerSeconds).isEqualTo(0)
+
+                    advanceTimeBy(1.seconds)
+                    runCurrent()
+                    assertThat(expectMostRecentItem().timerSeconds).isEqualTo(1)
+
+                    advanceTimeBy(2.seconds)
+                    runCurrent()
+                    assertThat(expectMostRecentItem().timerSeconds).isEqualTo(3)
+                }
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
+    fun `requesting a hint updates board and moves selection`() =
+        runTest {
+            try {
+                val hintPos = Position(2, 2)
+                val hintVal = 9
+                every { getHintUseCase(any()) } returns Hint(hintPos, hintVal, "Test hint")
+                every { checkWinUseCase(any()) } returns false
+
+                viewModel.onHintRequested()
+
+                viewModel.uiState.test {
+                    val state = awaitItem()
+                    assertThat(state.selectedPosition).isEqualTo(hintPos)
+                    assertThat(state.board.getCell(hintPos).value).isEqualTo(hintVal)
+                }
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
+    fun `game state is saved on number input`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns true
+                every { checkWinUseCase(any()) } returns false
+
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
                 runCurrent()
-                assertThat(expectMostRecentItem().timerSeconds).isEqualTo(1)
 
-                advanceTimeBy(2.seconds)
+                coVerify { repository.saveGameState(any()) }
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
+    fun `stats are updated when game is won`() =
+        runTest {
+            try {
+                val position = Position(0, 0)
+                val value = 5
+                every { validateMoveUseCase(any(), 0, 0, value) } returns true
+                every { checkWinUseCase(any()) } returns true
+                every { repository.getStats() } returns flowOf(emptyList())
+
+                viewModel.onCellSelected(position)
+                viewModel.onNumberInput(value)
                 runCurrent()
-                assertThat(expectMostRecentItem().timerSeconds).isEqualTo(3)
+
+                coVerify { repository.updateStats(match { it.gamesWon == 1 }) }
+            } finally {
+                viewModel.clearForTest()
             }
-        } finally {
-            viewModel.clearForTest()
         }
-    }
 
     @Test
-    fun `requesting a hint updates board and moves selection`() = runTest {
-        try {
-            val hintPos = Position(2, 2)
-            val hintVal = 9
-            every { getHintUseCase(any()) } returns Hint(hintPos, hintVal, "Test hint")
-            every { checkWinUseCase(any()) } returns false
-
-            viewModel.onHintRequested()
-
-            viewModel.uiState.test {
-                val state = awaitItem()
-                assertThat(state.selectedPosition).isEqualTo(hintPos)
-                assertThat(state.board.getCell(hintPos).value).isEqualTo(hintVal)
-            }
-        } finally {
-            viewModel.clearForTest()
-        }
-    }
-
-    @Test
-    fun `game state is saved on number input`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns true
-            every { checkWinUseCase(any()) } returns false
-
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
-            runCurrent()
-
-            coVerify { repository.saveGameState(any()) }
-        } finally {
-            viewModel.clearForTest()
-        }
-    }
-
-    @Test
-    fun `stats are updated when game is won`() = runTest {
-        try {
-            val position = Position(0, 0)
-            val value = 5
-            every { validateMoveUseCase(any(), 0, 0, value) } returns true
-            every { checkWinUseCase(any()) } returns true
-            every { repository.getStats() } returns flowOf(emptyList())
-
-            viewModel.onCellSelected(position)
-            viewModel.onNumberInput(value)
-            runCurrent()
-
-            coVerify { repository.updateStats(match { it.gamesWon == 1 }) }
-        } finally {
-            viewModel.clearForTest()
-        }
-    }
-
-    @Test
-    fun `restores state from repository on process death even with difficulty in route`() = runTest {
-        try {
+    fun `restores state from repository on process death even with difficulty in route`() =
+        runTest {
+            tearDown()
             val savedBoard = SudokuBoard.empty().withUpdatedCell(Position(0, 0)) { it.copy(value = 9) }
             val savedGame = GameState(savedBoard, Difficulty.HARD, 100, 1)
-            
-            every { repository.getGameState() } returns flowOf(savedGame)
-            
-            // Simulate process death: is_initialized is true
-            val restoredHandle = SavedStateHandle(mapOf(
-                "difficulty" to Difficulty.HARD,
-                "is_initialized" to true,
-                "selected_row" to 1,
-                "selected_col" to 1
-            ))
-            
-            val restoredViewModel = GameViewModel(
-                generateNewGameUseCase,
-                validateMoveUseCase,
-                checkWinUseCase,
-                getHintUseCase,
-                repository,
-                testDispatcher,
-                restoredHandle
-            )
 
-            restoredViewModel.uiState.test {
-                val state = awaitItem()
-                // Should use the saved game, not a new one
-                assertThat(state.board).isEqualTo(savedBoard)
-                assertThat(state.timerSeconds).isEqualTo(100)
-                assertThat(state.mistakeCount).isEqualTo(1)
-                assertThat(state.selectedPosition).isEqualTo(Position(1, 1))
+            every { repository.getGameState() } returns flowOf(savedGame)
+
+            // Simulate process death: is_initialized is true
+            val restoredHandle =
+                SavedStateHandle(
+                    mapOf(
+                        "difficulty" to Difficulty.HARD,
+                        "is_initialized" to true,
+                        "selected_row" to 1,
+                        "selected_col" to 1,
+                    ),
+                )
+
+            val restoredViewModel =
+                GameViewModel(
+                    generateNewGameUseCase,
+                    validateMoveUseCase,
+                    checkWinUseCase,
+                    getHintUseCase,
+                    repository,
+                    testDispatcher,
+                    restoredHandle,
+                )
+
+            try {
+                restoredViewModel.uiState.test {
+                    val state = awaitItem()
+                    // Should use the saved game, not a new one
+                    assertThat(state.board).isEqualTo(savedBoard)
+                    assertThat(state.timerSeconds).isEqualTo(100)
+                    assertThat(state.mistakeCount).isEqualTo(1)
+                    assertThat(state.selectedPosition).isEqualTo(Position(1, 1))
+                }
+
+                restoredViewModel.clearForTest()
+            } finally {
+                // No need to clear main viewModel since we created a local one
             }
-            
-            restoredViewModel.clearForTest()
-        } finally {
-            // No need to clear main viewModel since we created a local one
         }
-    }
 }

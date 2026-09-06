@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
+import com.katharina.sudoku.presentation.game.GameUiState
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -23,8 +24,7 @@ class SudokuGridTest {
 
         composeTestRule.setContent {
             SudokuGrid(
-                board = board,
-                selectedPosition = null,
+                uiState = GameUiState(board = board),
                 onCellClick = { clickedPosition = it }
             )
         }
@@ -43,8 +43,7 @@ class SudokuGridTest {
 
         composeTestRule.setContent {
             SudokuGrid(
-                board = board,
-                selectedPosition = null,
+                uiState = GameUiState(board = board),
                 onCellClick = {}
             )
         }
