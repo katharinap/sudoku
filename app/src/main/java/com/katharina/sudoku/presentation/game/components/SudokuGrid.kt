@@ -58,16 +58,16 @@ fun SudokuGrid(
                         val cell = board.getCell(position)
 
                         val isSelected = position == selectedPosition
-                        val isPeerHighlighted =
-                            selectedPosition?.let {
-                                it.row == row || it.column == col ||
-                                    (it.row / 3 == row / 3 && it.column / 3 == col / 3)
-                            } ?: false
+                        val selectedValue = selectedCell?.value
 
                         val isSameNumberHighlighted =
-                            selectedCell?.value != null &&
-                                cell.value == selectedCell.value &&
+                            selectedValue != null &&
+                                cell.value == selectedValue &&
                                 !isSelected
+
+                        val isPeerHighlighted =
+                            selectedValue != null &&
+                                cell.notes.contains(selectedValue)
 
                         val isError = position == uiState.errorPosition
 
