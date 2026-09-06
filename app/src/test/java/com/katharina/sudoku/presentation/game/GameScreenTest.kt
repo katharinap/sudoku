@@ -1,5 +1,7 @@
 package com.katharina.sudoku.presentation.game
 
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -31,6 +33,7 @@ class GameScreenTest {
         composeTestRule.setContent {
             GameContent(
                 uiState = uiState,
+                snackbarHostState = remember { SnackbarHostState() },
                 onCellClick = {},
                 onNumberClick = {},
                 onUndoClick = {},
@@ -62,6 +65,7 @@ class GameScreenTest {
         composeTestRule.setContent {
             GameContent(
                 uiState = uiState,
+                snackbarHostState = remember { SnackbarHostState() },
                 onCellClick = {},
                 onNumberClick = { clickedNumber = it },
                 onUndoClick = {},
@@ -90,6 +94,7 @@ class GameScreenTest {
         composeTestRule.setContent {
             GameContent(
                 uiState = uiState,
+                snackbarHostState = remember { SnackbarHostState() },
                 onCellClick = {},
                 onNumberClick = {},
                 onUndoClick = {},
@@ -117,6 +122,7 @@ class GameScreenTest {
         composeTestRule.setContent {
             GameContent(
                 uiState = uiState,
+                snackbarHostState = remember { SnackbarHostState() },
                 onCellClick = {},
                 onNumberClick = {},
                 onUndoClick = {},
@@ -143,6 +149,7 @@ class GameScreenTest {
         composeTestRule.setContent {
             GameContent(
                 uiState = uiState,
+                snackbarHostState = remember { SnackbarHostState() },
                 onCellClick = {},
                 onNumberClick = {},
                 onUndoClick = {},

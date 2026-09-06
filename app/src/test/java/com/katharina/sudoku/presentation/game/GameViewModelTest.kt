@@ -3,6 +3,7 @@ package com.katharina.sudoku.presentation.game
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.katharina.sudoku.domain.model.Cell
 import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.Hint
@@ -439,6 +440,69 @@ class GameViewModelTest {
                 viewModel.clearForTest()
             }
         }
+
+    @Test
+    fun `onHintRequested sets message when no hint is found`() = runTest {
+        try {
+            tearDown()
+            // Setup a full board (no empty cells -> no hints possible)
+            val fullBoard = SudokuBoard(List(81) { Cell(Position(it / 9, it % 9), value = 1) })
+            val savedGame = GameState(fullBoard, Difficulty.EASY, 0, 0)
+            every { repository.getGameState() } returns flowOf(savedGame)
+            every { getHintUseCase(any()) } returns null
+
+            viewModel = GameViewModel(
+                generateNewGameUseCase,
+                validateMoveUseCase,
+                checkWinUseCase,
+                getHintUseCase,
+                repository,
+                testDispatcher,
+                SavedStateHandle()
+            )
+            runCurrent()
+
+            viewModel.onHintRequested()
+            
+            assertThat(viewModel.uiState.value.message).isEqualTo("No hints available")
+            
+            viewModel.onDismissMessage()
+            assertThat(viewModel.uiState.value.message).isNull()
+
+        } finally {
+            viewModel.clearForTest()
+        }
+    }
+
+    @Test
+    fun `onValidateBoard sets message when no conflicts are found`() = runTest {
+        try {
+            tearDown()
+            // Setup an empty board (no values -> no conflicts possible)
+            val emptyBoard = SudokuBoard.empty()
+            val savedGame = GameState(emptyBoard, Difficulty.EASY, 0, 0)
+            every { repository.getGameState() } returns flowOf(savedGame)
+
+            viewModel = GameViewModel(
+                generateNewGameUseCase,
+                validateMoveUseCase,
+                checkWinUseCase,
+                getHintUseCase,
+                repository,
+                testDispatcher,
+                SavedStateHandle()
+            )
+            runCurrent()
+
+            viewModel.onValidateBoard()
+            
+            assertThat(viewModel.uiState.value.message).isEqualTo("No conflicts found")
+            assertThat(viewModel.uiState.value.conflictPositions).isEmpty()
+
+        } finally {
+            viewModel.clearForTest()
+        }
+    }
 
     @Test
     fun `restores state from repository on process death even with difficulty in route`() =

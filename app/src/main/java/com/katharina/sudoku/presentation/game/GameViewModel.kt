@@ -163,7 +163,8 @@ class GameViewModel
             val state = _uiState.value
             if (state.isPaused || state.isComplete) return
 
-            getHintUseCase(state.board)?.let { hint ->
+            val hint = getHintUseCase(state.board)
+            if (hint != null) {
                 pushToUndoStack(state.board)
                 val newBoard =
                     state.board.withUpdatedCell(hint.position) {
@@ -181,6 +182,8 @@ class GameViewModel
                 if (isComplete) {
                     onGameWon()
                 }
+            } else {
+                _uiState.update { it.copy(message = "No hints available") }
             }
         }
 
@@ -249,7 +252,13 @@ class GameViewModel
                     delay(2000.milliseconds)
                     _uiState.update { it.copy(conflictPositions = emptySet()) }
                 }
+            } else {
+                _uiState.update { it.copy(message = "No conflicts found") }
             }
+        }
+
+        fun onDismissMessage() {
+            _uiState.update { it.copy(message = null) }
         }
 
         private fun startTimer() {
