@@ -326,6 +326,75 @@ class GameViewModelTest {
         }
 
     @Test
+    fun `onResetGame clears user values and notes but keeps fixed cells`() =
+        runTest {
+            try {
+                tearDown()
+                // Setup: 1 fixed cell, 1 user value, 1 note
+                val fixedPos = Position(0, 0)
+                val userPos = Position(0, 1)
+                val notePos = Position(0, 2)
+
+                val boardWithData =
+                    SudokuBoard
+                        .empty()
+                        .withUpdatedCell(fixedPos) { it.copy(value = 5, isFixed = true) }
+                        .withUpdatedCell(userPos) { it.copy(value = 3) }
+                        .withUpdatedCell(notePos) { it.copy(notes = setOf(1, 2)) }
+
+                // We need to bypass init's startNewGame by providing a saved game
+                val savedGame = GameState(boardWithData, Difficulty.EASY, 100, 1)
+                every { repository.getGameState() } returns flowOf(savedGame)
+
+                // Re-init ViewModel to pick up the saved game
+                viewModel =
+                    GameViewModel(
+                        generateNewGameUseCase,
+                        validateMoveUseCase,
+                        checkWinUseCase,
+                        getHintUseCase,
+                        repository,
+                        testDispatcher,
+                        SavedStateHandle(),
+                    )
+                runCurrent()
+
+                // Verify initial setup
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(fixedPos)
+                        .value,
+                ).isEqualTo(5)
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(userPos)
+                        .value,
+                ).isEqualTo(3)
+                assertThat(
+                    viewModel.uiState.value.board
+                        .getCell(notePos)
+                        .notes,
+                ).containsExactly(1, 2)
+                assertThat(viewModel.uiState.value.timerSeconds).isEqualTo(100)
+                assertThat(viewModel.uiState.value.mistakeCount).isEqualTo(1)
+
+                // Execute reset
+                viewModel.onResetGame()
+                runCurrent()
+
+                // Verify reset state
+                val finalBoard = viewModel.uiState.value.board
+                assertThat(finalBoard.getCell(fixedPos).value).isEqualTo(5) // Still there
+                assertThat(finalBoard.getCell(userPos).value).isNull() // Cleared
+                assertThat(finalBoard.getCell(notePos).notes).isEmpty() // Cleared
+                assertThat(viewModel.uiState.value.timerSeconds).isEqualTo(0)
+                assertThat(viewModel.uiState.value.mistakeCount).isEqualTo(0)
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
     fun `restores state from repository on process death even with difficulty in route`() =
         runTest {
             tearDown()

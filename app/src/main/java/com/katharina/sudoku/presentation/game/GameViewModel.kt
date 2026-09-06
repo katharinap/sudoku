@@ -210,6 +210,32 @@ class GameViewModel
             _uiState.update { it.copy(isPaused = !it.isPaused) }
         }
 
+        fun onResetGame() {
+            val currentState = _uiState.value
+            if (currentState.isComplete) return
+
+            val originalBoard = SudokuBoard(
+                cells = currentState.board.cells.map { cell ->
+                    if (cell.isFixed) cell else cell.copy(value = null, notes = emptySet())
+                }
+            )
+
+            _uiState.update {
+                it.copy(
+                    board = originalBoard,
+                    timerSeconds = 0,
+                    mistakeCount = 0,
+                    selectedPosition = null,
+                    errorPosition = null
+                )
+            }
+            undoStack.clear()
+            redoStack.clear()
+            savedStateHandle["selected_row"] = null as Int?
+            savedStateHandle["selected_col"] = null as Int?
+            saveGame()
+        }
+
         private fun startTimer() {
             timerJob?.cancel()
             timerJob =

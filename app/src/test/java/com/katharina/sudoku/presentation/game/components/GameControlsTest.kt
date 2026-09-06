@@ -25,6 +25,7 @@ class GameControlsTest {
                 onRedoClick = {},
                 onHintClick = {},
                 onToggleNoteMode = {},
+                onResetClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -42,6 +43,7 @@ class GameControlsTest {
                 onRedoClick = { redoClicked = true },
                 onHintClick = {},
                 onToggleNoteMode = {},
+                onResetClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -59,6 +61,7 @@ class GameControlsTest {
                 onRedoClick = {},
                 onHintClick = { hintClicked = true },
                 onToggleNoteMode = {},
+                onResetClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -76,11 +79,30 @@ class GameControlsTest {
                 onRedoClick = {},
                 onHintClick = {},
                 onToggleNoteMode = { noteModeToggled = true },
+                onResetClick = {},
                 isNoteModeEnabled = false
             )
         }
 
         composeTestRule.onNodeWithContentDescription("Notes").performClick()
         assert(noteModeToggled)
+    }
+
+    @Test
+    fun resetClickInvokesCallback() {
+        var resetClicked = false
+        composeTestRule.setContent {
+            GameControls(
+                onUndoClick = {},
+                onRedoClick = {},
+                onHintClick = {},
+                onToggleNoteMode = {},
+                onResetClick = { resetClicked = true },
+                isNoteModeEnabled = false
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Reset").performClick()
+        assert(resetClicked)
     }
 }

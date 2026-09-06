@@ -27,6 +27,7 @@ fun GameControls(
     onRedoClick: () -> Unit,
     onHintClick: () -> Unit,
     onToggleNoteMode: () -> Unit,
+    onResetClick: () -> Unit,
     isNoteModeEnabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -50,6 +51,11 @@ fun GameControls(
             label = "Notes",
             onClick = onToggleNoteMode,
             isSelected = isNoteModeEnabled
+        )
+        ControlItem(
+            icon = painterResource(R.drawable.ic_reset_cells_outlined),
+            label = "Reset",
+            onClick = onResetClick
         )
         ControlItem(
             icon = painterResource(R.drawable.ic_lightbulb_outlined),
@@ -100,6 +106,7 @@ fun GameControlsPreview() {
             onRedoClick = {},
             onHintClick = {},
             onToggleNoteMode = {},
+            onResetClick = {},
             isNoteModeEnabled = true
         )
     }
