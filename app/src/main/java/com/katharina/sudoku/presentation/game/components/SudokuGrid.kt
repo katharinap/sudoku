@@ -69,7 +69,8 @@ fun SudokuGrid(
                             selectedValue != null &&
                                 cell.notes.contains(selectedValue)
 
-                        val isError = position == uiState.errorPosition
+                        val isError = position == uiState.errorPosition || 
+                                position in uiState.conflictPositions
 
                         key(position) {
                             SudokuCell(

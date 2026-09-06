@@ -15,5 +15,6 @@ data class GameUiState(
     val difficulty: Difficulty = Difficulty.EASY,
     val isComplete: Boolean = false,
     val isPaused: Boolean = false,
-    val errorPosition: Position? = null
+    val errorPosition: Position? = null,
+    val conflictPositions: Set<Position> = emptySet()
 )

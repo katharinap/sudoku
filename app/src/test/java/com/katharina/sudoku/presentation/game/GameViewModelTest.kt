@@ -29,6 +29,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -389,6 +390,51 @@ class GameViewModelTest {
                 assertThat(finalBoard.getCell(notePos).notes).isEmpty() // Cleared
                 assertThat(viewModel.uiState.value.timerSeconds).isEqualTo(0)
                 assertThat(viewModel.uiState.value.mistakeCount).isEqualTo(0)
+            } finally {
+                viewModel.clearForTest()
+            }
+        }
+
+    @Test
+    fun `onValidateBoard finds and highlights conflicts temporarily`() =
+        runTest {
+            try {
+                tearDown()
+                // Setup a board with a duplicate in the first row
+                val pos1 = Position(0, 0)
+                val pos2 = Position(0, 1)
+                val boardWithConflict =
+                    SudokuBoard
+                        .empty()
+                        .withUpdatedCell(pos1) { it.copy(value = 5) }
+                        .withUpdatedCell(pos2) { it.copy(value = 5) }
+
+                val savedGame = GameState(boardWithConflict, Difficulty.EASY, 0, 0)
+                every { repository.getGameState() } returns flowOf(savedGame)
+
+                viewModel =
+                    GameViewModel(
+                        generateNewGameUseCase,
+                        validateMoveUseCase,
+                        checkWinUseCase,
+                        getHintUseCase,
+                        repository,
+                        testDispatcher,
+                        SavedStateHandle(),
+                    )
+                runCurrent()
+
+                // Execute validation
+                viewModel.onValidateBoard()
+
+                // Verify conflicts are highlighted
+                assertThat(viewModel.uiState.value.conflictPositions).containsExactly(pos1, pos2)
+
+                // Advance virtual time by 2 seconds
+                advanceTimeBy(2001.milliseconds)
+                runCurrent()
+
+                assertThat(viewModel.uiState.value.conflictPositions).isEmpty()
             } finally {
                 viewModel.clearForTest()
             }

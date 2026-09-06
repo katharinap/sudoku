@@ -60,6 +60,7 @@ fun GameScreen(
         onHintClick = viewModel::onHintRequested,
         onToggleNoteMode = viewModel::onToggleNoteMode,
         onResetClick = viewModel::onResetGame,
+        onCheckClick = viewModel::onValidateBoard,
         onPauseResumeClick = viewModel::onPauseResume,
         onEraseClick = viewModel::onEraseInput,
         onPlayAgain = { viewModel.startNewGame(uiState.difficulty) },
@@ -80,6 +81,7 @@ fun GameContent(
     onHintClick: () -> Unit,
     onToggleNoteMode: () -> Unit,
     onResetClick: () -> Unit,
+    onCheckClick: () -> Unit,
     onPauseResumeClick: () -> Unit,
     onEraseClick: () -> Unit,
     onPlayAgain: () -> Unit,
@@ -168,6 +170,7 @@ fun GameContent(
                 onHintClick = onHintClick,
                 onToggleNoteMode = onToggleNoteMode,
                 onResetClick = onResetClick,
+                onCheckClick = onCheckClick,
                 isNoteModeEnabled = uiState.isNoteModeEnabled
             )
 
@@ -201,6 +204,7 @@ fun GameScreenPreview() {
             onHintClick = {},
             onToggleNoteMode = {},
             onResetClick = {},
+            onCheckClick = {},
             onPauseResumeClick = {},
             onEraseClick = {},
             onPlayAgain = {},

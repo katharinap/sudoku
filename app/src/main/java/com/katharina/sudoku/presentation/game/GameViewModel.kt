@@ -9,6 +9,7 @@ import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.GameStats
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
+import com.katharina.sudoku.domain.SudokuValidator
 import com.katharina.sudoku.domain.repository.SudokuRepository
 import com.katharina.sudoku.domain.usecase.CheckWinUseCase
 import com.katharina.sudoku.domain.usecase.GenerateNewGameUseCase
@@ -226,7 +227,8 @@ class GameViewModel
                     timerSeconds = 0,
                     mistakeCount = 0,
                     selectedPosition = null,
-                    errorPosition = null
+                    errorPosition = null,
+                    conflictPositions = emptySet()
                 )
             }
             undoStack.clear()
@@ -234,6 +236,20 @@ class GameViewModel
             savedStateHandle["selected_row"] = null as Int?
             savedStateHandle["selected_col"] = null as Int?
             saveGame()
+        }
+
+        fun onValidateBoard() {
+            val currentState = _uiState.value
+            if (currentState.isComplete || currentState.isPaused) return
+
+            val conflicts = SudokuValidator.findConflicts(currentState.board).toSet()
+            if (conflicts.isNotEmpty()) {
+                _uiState.update { it.copy(conflictPositions = conflicts) }
+                viewModelScope.launch(defaultDispatcher) {
+                    delay(2000.milliseconds)
+                    _uiState.update { it.copy(conflictPositions = emptySet()) }
+                }
+            }
         }
 
         private fun startTimer() {

@@ -26,6 +26,7 @@ class GameControlsTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onResetClick = {},
+                onCheckClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -44,6 +45,7 @@ class GameControlsTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onResetClick = {},
+                onCheckClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -62,6 +64,7 @@ class GameControlsTest {
                 onHintClick = { hintClicked = true },
                 onToggleNoteMode = {},
                 onResetClick = {},
+                onCheckClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -80,6 +83,7 @@ class GameControlsTest {
                 onHintClick = {},
                 onToggleNoteMode = { noteModeToggled = true },
                 onResetClick = {},
+                onCheckClick = {},
                 isNoteModeEnabled = false
             )
         }
@@ -98,11 +102,31 @@ class GameControlsTest {
                 onHintClick = {},
                 onToggleNoteMode = {},
                 onResetClick = { resetClicked = true },
+                onCheckClick = {},
                 isNoteModeEnabled = false
             )
         }
 
         composeTestRule.onNodeWithContentDescription("Reset").performClick()
         assert(resetClicked)
+    }
+
+    @Test
+    fun checkClickInvokesCallback() {
+        var checkClicked = false
+        composeTestRule.setContent {
+            GameControls(
+                onUndoClick = {},
+                onRedoClick = {},
+                onHintClick = {},
+                onToggleNoteMode = {},
+                onResetClick = {},
+                onCheckClick = { checkClicked = true },
+                isNoteModeEnabled = false
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Check").performClick()
+        assert(checkClicked)
     }
 }
