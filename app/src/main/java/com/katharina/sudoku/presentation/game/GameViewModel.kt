@@ -11,6 +11,8 @@ import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.GameStats
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
+import com.katharina.sudoku.domain.model.UserSettings
+import com.katharina.sudoku.domain.repository.SettingsRepository
 import com.katharina.sudoku.domain.repository.SudokuRepository
 import com.katharina.sudoku.domain.usecase.CheckWinUseCase
 import com.katharina.sudoku.domain.usecase.GenerateNewGameUseCase
@@ -41,11 +43,14 @@ class GameViewModel
         private val checkWinUseCase: CheckWinUseCase,
         private val getHintUseCase: GetHintUseCase,
         private val repository: SudokuRepository,
+        private val settingsRepository: SettingsRepository,
         @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
         private val savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(GameUiState())
         val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+
+        private var userSettings = UserSettings()
 
         private val undoStack = java.util.ArrayDeque<SudokuBoard>()
         private val redoStack = java.util.ArrayDeque<SudokuBoard>()
@@ -93,6 +98,12 @@ class GameViewModel
                     // Fallback
                     startNewGame(Difficulty.EASY)
                     savedStateHandle["is_initialized"] = true
+                }
+            }
+
+            viewModelScope.launch {
+                settingsRepository.userSettings.collect { settings ->
+                    userSettings = settings
                 }
             }
         }
@@ -344,10 +355,28 @@ class GameViewModel
 
             if (validateMoveUseCase(currentBoard, position.row, position.column, value)) {
                 pushToUndoStack(currentBoard)
-                val newBoard =
+                var newBoard =
                     currentBoard.withUpdatedCell(position) {
                         it.copy(value = value, notes = emptySet())
                     }
+                
+                if (userSettings.autoClearNotes) {
+                    val boxIndex = currentBoard.getBoxIndex(position.row, position.column)
+                    newBoard = SudokuBoard(
+                        cells = newBoard.cells.map { cell ->
+                            val isPeer = cell.position.row == position.row ||
+                                    cell.position.column == position.column ||
+                                    currentBoard.getBoxIndex(cell.position.row, cell.position.column) == boxIndex
+                            
+                            if (isPeer && cell.position != position) {
+                                cell.copy(notes = cell.notes - value)
+                            } else {
+                                cell
+                            }
+                        }
+                    )
+                }
+
                 val isComplete = checkWinUseCase(newBoard)
                 _uiState.update {
                     it.copy(board = newBoard, isComplete = isComplete)

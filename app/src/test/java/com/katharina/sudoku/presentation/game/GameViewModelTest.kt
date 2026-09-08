@@ -9,6 +9,8 @@ import com.katharina.sudoku.domain.model.GameState
 import com.katharina.sudoku.domain.model.Hint
 import com.katharina.sudoku.domain.model.Position
 import com.katharina.sudoku.domain.model.SudokuBoard
+import com.katharina.sudoku.domain.model.UserSettings
+import com.katharina.sudoku.domain.repository.SettingsRepository
 import com.katharina.sudoku.domain.repository.SudokuRepository
 import com.katharina.sudoku.domain.usecase.CheckWinUseCase
 import com.katharina.sudoku.domain.usecase.GenerateNewGameUseCase
@@ -40,6 +42,7 @@ class GameViewModelTest {
     private val checkWinUseCase: CheckWinUseCase = mockk()
     private val getHintUseCase: GetHintUseCase = mockk()
     private val repository: SudokuRepository = mockk()
+    private val settingsRepository: SettingsRepository = mockk()
     private val savedStateHandle = SavedStateHandle()
 
     private lateinit var viewModel: GameViewModel
@@ -51,6 +54,7 @@ class GameViewModelTest {
         every { generateNewGameUseCase(any()) } returns SudokuBoard.empty()
         every { repository.getGameState() } returns flowOf(null)
         every { repository.getStats() } returns flowOf(emptyList())
+        every { settingsRepository.userSettings } returns flowOf(UserSettings())
         coEvery { repository.saveGameState(any()) } returns Unit
         coEvery { repository.updateStats(any()) } returns Unit
         coEvery { repository.clearSavedGame() } returns Unit
@@ -62,6 +66,7 @@ class GameViewModelTest {
                 checkWinUseCase,
                 getHintUseCase,
                 repository,
+                settingsRepository,
                 testDispatcher,
                 savedStateHandle,
             )
@@ -356,6 +361,7 @@ class GameViewModelTest {
                         checkWinUseCase,
                         getHintUseCase,
                         repository,
+                        settingsRepository,
                         testDispatcher,
                         SavedStateHandle(),
                     )
@@ -420,6 +426,7 @@ class GameViewModelTest {
                         checkWinUseCase,
                         getHintUseCase,
                         repository,
+                        settingsRepository,
                         testDispatcher,
                         SavedStateHandle(),
                     )
@@ -457,6 +464,7 @@ class GameViewModelTest {
                 checkWinUseCase,
                 getHintUseCase,
                 repository,
+                settingsRepository,
                 testDispatcher,
                 SavedStateHandle()
             )
@@ -489,6 +497,7 @@ class GameViewModelTest {
                 checkWinUseCase,
                 getHintUseCase,
                 repository,
+                settingsRepository,
                 testDispatcher,
                 SavedStateHandle()
             )
@@ -531,6 +540,7 @@ class GameViewModelTest {
                     checkWinUseCase,
                     getHintUseCase,
                     repository,
+                    settingsRepository,
                     testDispatcher,
                     restoredHandle,
                 )
@@ -550,4 +560,46 @@ class GameViewModelTest {
                 // No need to clear main viewModel since we created a local one
             }
         }
+
+    @Test
+    fun `auto clear notes removes value from peers when enabled`() = runTest {
+        try {
+            tearDown()
+            val targetPos = Position(0, 0)
+            val peerPos = Position(0, 1)
+            val nonPeerPos = Position(1, 4) // Different row, col, and box
+
+            val board = SudokuBoard.empty()
+                .withUpdatedCell(peerPos) { it.copy(notes = setOf(5, 1)) }
+                .withUpdatedCell(nonPeerPos) { it.copy(notes = setOf(5, 2)) }
+
+            val savedGame = GameState(board, Difficulty.EASY, 0, 0)
+            every { repository.getGameState() } returns flowOf(savedGame)
+            every { settingsRepository.userSettings } returns flowOf(UserSettings(autoClearNotes = true))
+            every { validateMoveUseCase(any(), 0, 0, 5) } returns true
+            every { checkWinUseCase(any()) } returns false
+
+            viewModel = GameViewModel(
+                generateNewGameUseCase,
+                validateMoveUseCase,
+                checkWinUseCase,
+                getHintUseCase,
+                repository,
+                settingsRepository,
+                testDispatcher,
+                SavedStateHandle()
+            )
+            runCurrent()
+
+            viewModel.onCellSelected(targetPos)
+            viewModel.onNumberInput(5)
+            runCurrent()
+
+            val finalBoard = viewModel.uiState.value.board
+            assertThat(finalBoard.getCell(peerPos).notes).containsExactly(1) // 5 cleared
+            assertThat(finalBoard.getCell(nonPeerPos).notes).containsExactly(5, 2) // 5 remains
+        } finally {
+            viewModel.clearForTest()
+        }
+    }
 }

@@ -6,9 +6,12 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.katharina.sudoku.data.local.SettingsDataSource
 import com.katharina.sudoku.data.local.SudokuDao
 import com.katharina.sudoku.data.local.SudokuDatabase
+import com.katharina.sudoku.data.repository.SettingsRepositoryImpl
 import com.katharina.sudoku.data.repository.SudokuRepositoryImpl
+import com.katharina.sudoku.domain.repository.SettingsRepository
 import com.katharina.sudoku.domain.repository.SudokuRepository
 import dagger.Module
 import dagger.Provides
@@ -41,6 +44,12 @@ object AppModule {
     @Singleton
     fun provideSudokuRepository(dao: SudokuDao): SudokuRepository {
         return SudokuRepositoryImpl(dao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(dataSource: SettingsDataSource): SettingsRepository {
+        return SettingsRepositoryImpl(dataSource)
     }
 
     @Provides

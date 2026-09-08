@@ -1,0 +1,15 @@
+package com.katharina.sudoku.domain.repository
+
+import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.UserSettings
+import kotlinx.coroutines.flow.Flow
+
+interface SettingsRepository {
+    val userSettings: Flow<UserSettings>
+    suspend fun updateDarkMode(isDarkMode: Boolean?)
+    suspend fun updateSoundEnabled(isEnabled: Boolean)
+    suspend fun updateHapticsEnabled(isEnabled: Boolean)
+    suspend fun updateDefaultDifficulty(difficulty: Difficulty)
+    suspend fun updateHighlightSameNumbers(isEnabled: Boolean)
+    suspend fun updateAutoClearNotes(isEnabled: Boolean)
+}

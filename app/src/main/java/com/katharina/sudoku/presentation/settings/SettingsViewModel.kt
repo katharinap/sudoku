@@ -2,8 +2,8 @@ package com.katharina.sudoku.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.katharina.sudoku.data.local.SettingsDataSource
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,14 +16,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val dataSource: SettingsDataSource
+    private val repository: SettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
-        dataSource.userSettings
+        repository.userSettings
             .onEach { settings ->
                 _uiState.update {
                     it.copy(
@@ -37,37 +37,37 @@ class SettingsViewModel @Inject constructor(
 
     fun onDarkModeChanged(isDarkMode: Boolean?) {
         viewModelScope.launch {
-            dataSource.updateDarkMode(isDarkMode)
+            repository.updateDarkMode(isDarkMode)
         }
     }
 
     fun onSoundChanged(isEnabled: Boolean) {
         viewModelScope.launch {
-            dataSource.updateSoundEnabled(isEnabled)
+            repository.updateSoundEnabled(isEnabled)
         }
     }
 
     fun onHapticsChanged(isEnabled: Boolean) {
         viewModelScope.launch {
-            dataSource.updateHapticsEnabled(isEnabled)
+            repository.updateHapticsEnabled(isEnabled)
         }
     }
 
     fun onDefaultDifficultyChanged(difficulty: Difficulty) {
         viewModelScope.launch {
-            dataSource.updateDefaultDifficulty(difficulty)
+            repository.updateDefaultDifficulty(difficulty)
         }
     }
 
     fun onHighlightSameNumbersChanged(isEnabled: Boolean) {
         viewModelScope.launch {
-            dataSource.updateHighlightSameNumbers(isEnabled)
+            repository.updateHighlightSameNumbers(isEnabled)
         }
     }
 
     fun onAutoClearNotesChanged(isEnabled: Boolean) {
         viewModelScope.launch {
-            dataSource.updateAutoClearNotes(isEnabled)
+            repository.updateAutoClearNotes(isEnabled)
         }
     }
 }
