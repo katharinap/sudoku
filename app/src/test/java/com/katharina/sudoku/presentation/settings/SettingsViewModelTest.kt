@@ -36,8 +36,6 @@ class SettingsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         every { repository.userSettings } returns settingsFlow
         coEvery { repository.updateThemeMode(any()) } returns Unit
-        coEvery { repository.updateSoundEnabled(any()) } returns Unit
-        coEvery { repository.updateHapticsEnabled(any()) } returns Unit
         coEvery { repository.updateDefaultDifficulty(any()) } returns Unit
         coEvery { repository.updateHighlightSameNumbers(any()) } returns Unit
         coEvery { repository.updateAutoClearNotes(any()) } returns Unit
@@ -58,13 +56,13 @@ class SettingsViewModelTest {
             assertThat(state.isLoading).isTrue()
 
             // Emit settings
-            val settings = UserSettings(isSoundEnabled = false)
+            val settings = UserSettings(highlightSameNumbers = false)
             settingsFlow.emit(settings)
             runCurrent()
             
             state = awaitItem()
             assertThat(state.isLoading).isFalse()
-            assertThat(state.settings.isSoundEnabled).isFalse()
+            assertThat(state.settings.highlightSameNumbers).isFalse()
         }
     }
 
@@ -73,20 +71,6 @@ class SettingsViewModelTest {
         viewModel.onThemeModeChanged(ThemeMode.DARK)
         runCurrent()
         coVerify { repository.updateThemeMode(ThemeMode.DARK) }
-    }
-
-    @Test
-    fun `onSoundChanged calls repository`() = runTest {
-        viewModel.onSoundChanged(false)
-        runCurrent()
-        coVerify { repository.updateSoundEnabled(false) }
-    }
-
-    @Test
-    fun `onHapticsChanged calls repository`() = runTest {
-        viewModel.onHapticsChanged(false)
-        runCurrent()
-        coVerify { repository.updateHapticsEnabled(false) }
     }
 
     @Test

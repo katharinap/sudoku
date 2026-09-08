@@ -104,7 +104,11 @@ class GameViewModel
             viewModelScope.launch {
                 settingsRepository.userSettings.collect { settings ->
                     userSettings = settings
-                    _uiState.update { it.copy(highlightSameNumbers = settings.highlightSameNumbers) }
+                    _uiState.update {
+                        it.copy(
+                            highlightSameNumbers = settings.highlightSameNumbers
+                        )
+                    }
                 }
             }
         }

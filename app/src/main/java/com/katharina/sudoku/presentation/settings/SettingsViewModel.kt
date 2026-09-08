@@ -42,18 +42,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onSoundChanged(isEnabled: Boolean) {
-        viewModelScope.launch {
-            repository.updateSoundEnabled(isEnabled)
-        }
-    }
-
-    fun onHapticsChanged(isEnabled: Boolean) {
-        viewModelScope.launch {
-            repository.updateHapticsEnabled(isEnabled)
-        }
-    }
-
     fun onDefaultDifficultyChanged(difficulty: Difficulty) {
         viewModelScope.launch {
             repository.updateDefaultDifficulty(difficulty)

@@ -39,8 +39,6 @@ class SettingsDataSourceTest {
         val settings = settingsDataSource.userSettings.first()
         
         assertThat(settings.themeMode).isEqualTo(ThemeMode.SYSTEM)
-        assertThat(settings.isSoundEnabled).isTrue()
-        assertThat(settings.isHapticsEnabled).isTrue()
         assertThat(settings.defaultDifficulty).isEqualTo(Difficulty.EASY)
         assertThat(settings.highlightSameNumbers).isTrue()
         assertThat(settings.autoClearNotes).isTrue()
@@ -65,9 +63,9 @@ class SettingsDataSourceTest {
     }
 
     @Test
-    fun `updateSoundEnabled updates setting`() = runBlocking {
-        settingsDataSource.updateSoundEnabled(false)
+    fun `updateHighlightSameNumbers updates setting`() = runBlocking {
+        settingsDataSource.updateHighlightSameNumbers(false)
         val settings = settingsDataSource.userSettings.first()
-        assertThat(settings.isSoundEnabled).isFalse()
+        assertThat(settings.highlightSameNumbers).isFalse()
     }
 }

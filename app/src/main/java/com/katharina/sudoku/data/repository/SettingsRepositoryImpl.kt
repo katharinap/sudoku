@@ -18,14 +18,6 @@ class SettingsRepositoryImpl @Inject constructor(
         dataSource.updateThemeMode(themeMode)
     }
 
-    override suspend fun updateSoundEnabled(isEnabled: Boolean) {
-        dataSource.updateSoundEnabled(isEnabled)
-    }
-
-    override suspend fun updateHapticsEnabled(isEnabled: Boolean) {
-        dataSource.updateHapticsEnabled(isEnabled)
-    }
-
     override suspend fun updateDefaultDifficulty(difficulty: Difficulty) {
         dataSource.updateDefaultDifficulty(difficulty)
     }

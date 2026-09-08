@@ -50,8 +50,6 @@ fun SettingsScreen(
         uiState = uiState,
         onBackClick = onBackClick,
         onThemeModeChanged = viewModel::onThemeModeChanged,
-        onSoundChanged = viewModel::onSoundChanged,
-        onHapticsChanged = viewModel::onHapticsChanged,
         onDefaultDifficultyChanged = viewModel::onDefaultDifficultyChanged,
         onHighlightSameNumbersChanged = viewModel::onHighlightSameNumbersChanged,
         onAutoClearNotesChanged = viewModel::onAutoClearNotesChanged,
@@ -65,8 +63,6 @@ fun SettingsContent(
     uiState: SettingsUiState,
     onBackClick: () -> Unit,
     onThemeModeChanged: (ThemeMode) -> Unit,
-    onSoundChanged: (Boolean) -> Unit,
-    onHapticsChanged: (Boolean) -> Unit,
     onDefaultDifficultyChanged: (Difficulty) -> Unit,
     onHighlightSameNumbersChanged: (Boolean) -> Unit,
     onAutoClearNotesChanged: (Boolean) -> Unit,
@@ -114,24 +110,6 @@ fun SettingsContent(
                 HorizontalDivider()
 
                 SettingsGroup(title = "Game") {
-                    ListItem(
-                        headlineContent = { Text("Sound Effects") },
-                        trailingContent = {
-                            Switch(
-                                checked = uiState.settings.isSoundEnabled,
-                                onCheckedChange = onSoundChanged
-                            )
-                        }
-                    )
-                    ListItem(
-                        headlineContent = { Text("Haptic Feedback") },
-                        trailingContent = {
-                            Switch(
-                                checked = uiState.settings.isHapticsEnabled,
-                                onCheckedChange = onHapticsChanged
-                            )
-                        }
-                    )
                     ListItem(
                         headlineContent = { Text("Highlight Same Numbers") },
                         trailingContent = {
@@ -263,8 +241,6 @@ fun SettingsScreenPreview() {
             uiState = SettingsUiState(isLoading = false),
             onBackClick = {},
             onThemeModeChanged = {},
-            onSoundChanged = {},
-            onHapticsChanged = {},
             onDefaultDifficultyChanged = {},
             onHighlightSameNumbersChanged = {},
             onAutoClearNotesChanged = {}

@@ -23,8 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,14 +44,7 @@ fun GameScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val haptic = LocalHapticFeedback.current
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(uiState.mistakeCount) {
-        if (uiState.mistakeCount > 0) {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-        }
-    }
 
     LaunchedEffect(uiState.message) {
         uiState.message?.let {

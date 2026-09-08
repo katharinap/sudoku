@@ -17,8 +17,6 @@ class SettingsDataSource @Inject constructor(
 ) {
     object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
-        val IS_SOUND_ENABLED = booleanPreferencesKey("is_sound_enabled")
-        val IS_HAPTICS_ENABLED = booleanPreferencesKey("is_haptics_enabled")
         val DEFAULT_DIFFICULTY = stringPreferencesKey("default_difficulty")
         val HIGHLIGHT_SAME_NUMBERS = booleanPreferencesKey("highlight_same_numbers")
         val AUTO_CLEAR_NOTES = booleanPreferencesKey("auto_clear_notes")
@@ -33,8 +31,6 @@ class SettingsDataSource @Inject constructor(
                     ThemeMode.SYSTEM
                 }
             } ?: ThemeMode.SYSTEM,
-            isSoundEnabled = preferences[Keys.IS_SOUND_ENABLED] ?: true,
-            isHapticsEnabled = preferences[Keys.IS_HAPTICS_ENABLED] ?: true,
             defaultDifficulty = preferences[Keys.DEFAULT_DIFFICULTY]?.let {
                 Difficulty.valueOf(it)
             } ?: Difficulty.EASY,
@@ -46,18 +42,6 @@ class SettingsDataSource @Inject constructor(
     suspend fun updateThemeMode(themeMode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[Keys.THEME_MODE] = themeMode.name
-        }
-    }
-
-    suspend fun updateSoundEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.IS_SOUND_ENABLED] = isEnabled
-        }
-    }
-
-    suspend fun updateHapticsEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.IS_HAPTICS_ENABLED] = isEnabled
         }
     }
 

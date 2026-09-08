@@ -27,8 +27,6 @@ class SettingsScreenTest {
                 uiState = uiState,
                 onBackClick = {},
                 onThemeModeChanged = {},
-                onSoundChanged = {},
-                onHapticsChanged = {},
                 onDefaultDifficultyChanged = {},
                 onHighlightSameNumbersChanged = {},
                 onAutoClearNotesChanged = {}
@@ -41,7 +39,7 @@ class SettingsScreenTest {
         
         // Scroll to "Game" if needed
         composeTestRule.onNodeWithText("Game").performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText("Sound Effects").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Highlight Same Numbers").assertIsDisplayed()
         
         // Scroll to "Defaults"
         composeTestRule.onNodeWithText("Defaults").performScrollTo().assertIsDisplayed()
@@ -56,8 +54,6 @@ class SettingsScreenTest {
                 uiState = uiState,
                 onBackClick = {},
                 onThemeModeChanged = {},
-                onSoundChanged = {},
-                onHapticsChanged = {},
                 onDefaultDifficultyChanged = {},
                 onHighlightSameNumbersChanged = {},
                 onAutoClearNotesChanged = {}

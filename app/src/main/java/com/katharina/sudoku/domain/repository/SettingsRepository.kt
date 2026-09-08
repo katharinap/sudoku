@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     val userSettings: Flow<UserSettings>
     suspend fun updateThemeMode(themeMode: ThemeMode)
-    suspend fun updateSoundEnabled(isEnabled: Boolean)
-    suspend fun updateHapticsEnabled(isEnabled: Boolean)
     suspend fun updateDefaultDifficulty(difficulty: Difficulty)
     suspend fun updateHighlightSameNumbers(isEnabled: Boolean)
     suspend fun updateAutoClearNotes(isEnabled: Boolean)
