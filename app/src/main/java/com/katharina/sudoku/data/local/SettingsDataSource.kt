@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.model.UserSettings
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +16,6 @@ class SettingsDataSource @Inject constructor(
 ) {
     object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
-        val DEFAULT_DIFFICULTY = stringPreferencesKey("default_difficulty")
         val HIGHLIGHT_SAME_NUMBERS = booleanPreferencesKey("highlight_same_numbers")
         val AUTO_CLEAR_NOTES = booleanPreferencesKey("auto_clear_notes")
     }
@@ -31,9 +29,6 @@ class SettingsDataSource @Inject constructor(
                     ThemeMode.SYSTEM
                 }
             } ?: ThemeMode.SYSTEM,
-            defaultDifficulty = preferences[Keys.DEFAULT_DIFFICULTY]?.let {
-                Difficulty.valueOf(it)
-            } ?: Difficulty.EASY,
             highlightSameNumbers = preferences[Keys.HIGHLIGHT_SAME_NUMBERS] ?: true,
             autoClearNotes = preferences[Keys.AUTO_CLEAR_NOTES] ?: true
         )
@@ -42,12 +37,6 @@ class SettingsDataSource @Inject constructor(
     suspend fun updateThemeMode(themeMode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[Keys.THEME_MODE] = themeMode.name
-        }
-    }
-
-    suspend fun updateDefaultDifficulty(difficulty: Difficulty) {
-        dataStore.edit { preferences ->
-            preferences[Keys.DEFAULT_DIFFICULTY] = difficulty.name
         }
     }
 

@@ -30,11 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.katharina.sudoku.R
-import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.ui.theme.SudokuTheme
 
@@ -50,7 +48,6 @@ fun SettingsScreen(
         uiState = uiState,
         onBackClick = onBackClick,
         onThemeModeChanged = viewModel::onThemeModeChanged,
-        onDefaultDifficultyChanged = viewModel::onDefaultDifficultyChanged,
         onHighlightSameNumbersChanged = viewModel::onHighlightSameNumbersChanged,
         onAutoClearNotesChanged = viewModel::onAutoClearNotesChanged,
         modifier = modifier
@@ -63,7 +60,6 @@ fun SettingsContent(
     uiState: SettingsUiState,
     onBackClick: () -> Unit,
     onThemeModeChanged: (ThemeMode) -> Unit,
-    onDefaultDifficultyChanged: (Difficulty) -> Unit,
     onHighlightSameNumbersChanged: (Boolean) -> Unit,
     onAutoClearNotesChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -127,15 +123,6 @@ fun SettingsContent(
                                 onCheckedChange = onAutoClearNotesChanged
                             )
                         }
-                    )
-                }
-
-                HorizontalDivider()
-
-                SettingsGroup(title = "Defaults") {
-                    DifficultyDropdown(
-                        currentDifficulty = uiState.settings.defaultDifficulty,
-                        onDifficultySelected = onDefaultDifficultyChanged
                     )
                 }
             }
@@ -202,37 +189,6 @@ private fun ThemeModeDropdown(
     }
 }
 
-@Composable
-private fun DifficultyDropdown(
-    currentDifficulty: Difficulty,
-    onDifficultySelected: (Difficulty) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        ListItem(
-            headlineContent = { Text("Default Difficulty") },
-            supportingContent = { Text(currentDifficulty.name) },
-            modifier = Modifier.clickable { expanded = true }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            Difficulty.entries.forEach { difficulty ->
-                DropdownMenuItem(
-                    text = { Text(difficulty.name) },
-                    onClick = {
-                        onDifficultySelected(difficulty)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
@@ -241,7 +197,6 @@ fun SettingsScreenPreview() {
             uiState = SettingsUiState(isLoading = false),
             onBackClick = {},
             onThemeModeChanged = {},
-            onDefaultDifficultyChanged = {},
             onHighlightSameNumbersChanged = {},
             onAutoClearNotesChanged = {}
         )

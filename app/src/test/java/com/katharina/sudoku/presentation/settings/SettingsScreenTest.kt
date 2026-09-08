@@ -3,7 +3,6 @@ package com.katharina.sudoku.presentation.settings
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import org.junit.Rule
 import org.junit.Test
@@ -27,7 +26,6 @@ class SettingsScreenTest {
                 uiState = uiState,
                 onBackClick = {},
                 onThemeModeChanged = {},
-                onDefaultDifficultyChanged = {},
                 onHighlightSameNumbersChanged = {},
                 onAutoClearNotesChanged = {}
             )
@@ -40,27 +38,5 @@ class SettingsScreenTest {
         // Scroll to "Game" if needed
         composeTestRule.onNodeWithText("Game").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Highlight Same Numbers").assertIsDisplayed()
-        
-        // Scroll to "Defaults"
-        composeTestRule.onNodeWithText("Defaults").performScrollTo().assertIsDisplayed()
-    }
-
-    @Test
-    fun clickingDifficultyDropdownShowsOptions() {
-        val uiState = SettingsUiState(isLoading = false)
-
-        composeTestRule.setContent {
-            SettingsContent(
-                uiState = uiState,
-                onBackClick = {},
-                onThemeModeChanged = {},
-                onDefaultDifficultyChanged = {},
-                onHighlightSameNumbersChanged = {},
-                onAutoClearNotesChanged = {}
-            )
-        }
-
-        composeTestRule.onNodeWithText("Default Difficulty").performScrollTo().performClick()
-        composeTestRule.onNodeWithText("EXPERT").assertIsDisplayed()
     }
 }

@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.ThemeMode
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -39,7 +38,6 @@ class SettingsDataSourceTest {
         val settings = settingsDataSource.userSettings.first()
         
         assertThat(settings.themeMode).isEqualTo(ThemeMode.SYSTEM)
-        assertThat(settings.defaultDifficulty).isEqualTo(Difficulty.EASY)
         assertThat(settings.highlightSameNumbers).isTrue()
         assertThat(settings.autoClearNotes).isTrue()
     }
@@ -53,13 +51,6 @@ class SettingsDataSourceTest {
         settingsDataSource.updateThemeMode(ThemeMode.SYSTEM)
         settings = settingsDataSource.userSettings.first()
         assertThat(settings.themeMode).isEqualTo(ThemeMode.SYSTEM)
-    }
-
-    @Test
-    fun `updateDefaultDifficulty updates setting`() = runBlocking {
-        settingsDataSource.updateDefaultDifficulty(Difficulty.EXPERT)
-        val settings = settingsDataSource.userSettings.first()
-        assertThat(settings.defaultDifficulty).isEqualTo(Difficulty.EXPERT)
     }
 
     @Test

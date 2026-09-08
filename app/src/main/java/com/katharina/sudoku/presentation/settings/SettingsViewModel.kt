@@ -2,7 +2,6 @@ package com.katharina.sudoku.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,12 +38,6 @@ class SettingsViewModel @Inject constructor(
     fun onThemeModeChanged(themeMode: ThemeMode) {
         viewModelScope.launch {
             repository.updateThemeMode(themeMode)
-        }
-    }
-
-    fun onDefaultDifficultyChanged(difficulty: Difficulty) {
-        viewModelScope.launch {
-            repository.updateDefaultDifficulty(difficulty)
         }
     }
 

@@ -2,7 +2,6 @@ package com.katharina.sudoku.presentation.settings
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.katharina.sudoku.domain.model.Difficulty
 import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.model.UserSettings
 import com.katharina.sudoku.domain.repository.SettingsRepository
@@ -36,7 +35,6 @@ class SettingsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         every { repository.userSettings } returns settingsFlow
         coEvery { repository.updateThemeMode(any()) } returns Unit
-        coEvery { repository.updateDefaultDifficulty(any()) } returns Unit
         coEvery { repository.updateHighlightSameNumbers(any()) } returns Unit
         coEvery { repository.updateAutoClearNotes(any()) } returns Unit
 
@@ -71,13 +69,6 @@ class SettingsViewModelTest {
         viewModel.onThemeModeChanged(ThemeMode.DARK)
         runCurrent()
         coVerify { repository.updateThemeMode(ThemeMode.DARK) }
-    }
-
-    @Test
-    fun `onDefaultDifficultyChanged calls repository`() = runTest {
-        viewModel.onDefaultDifficultyChanged(Difficulty.HARD)
-        runCurrent()
-        coVerify { repository.updateDefaultDifficulty(Difficulty.HARD) }
     }
 
     @Test
