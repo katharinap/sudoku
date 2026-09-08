@@ -61,12 +61,14 @@ fun SudokuGrid(
                         val selectedValue = selectedCell?.value
 
                         val isSameNumberHighlighted =
-                            selectedValue != null &&
+                            uiState.highlightSameNumbers &&
+                                selectedValue != null &&
                                 cell.value == selectedValue &&
                                 !isSelected
 
                         val isPeerHighlighted =
-                            selectedValue != null &&
+                            uiState.highlightSameNumbers &&
+                                selectedValue != null &&
                                 cell.notes.contains(selectedValue)
 
                         val isError = position == uiState.errorPosition || 

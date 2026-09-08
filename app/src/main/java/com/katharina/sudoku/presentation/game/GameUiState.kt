@@ -17,5 +17,6 @@ data class GameUiState(
     val isPaused: Boolean = false,
     val errorPosition: Position? = null,
     val conflictPositions: Set<Position> = emptySet(),
-    val message: String? = null
+    val message: String? = null,
+    val highlightSameNumbers: Boolean = true
 )
