@@ -26,7 +26,7 @@ class SettingsScreenTest {
             SettingsContent(
                 uiState = uiState,
                 onBackClick = {},
-                onDarkModeChanged = {},
+                onThemeModeChanged = {},
                 onSoundChanged = {},
                 onHapticsChanged = {},
                 onDefaultDifficultyChanged = {},
@@ -37,7 +37,7 @@ class SettingsScreenTest {
 
         composeTestRule.onNodeWithText("Settings").assertIsDisplayed()
         composeTestRule.onNodeWithText("Appearance").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Dark Mode").assertIsDisplayed()
+        composeTestRule.onNodeWithText("App Theme").assertIsDisplayed()
         
         // Scroll to "Game" if needed
         composeTestRule.onNodeWithText("Game").performScrollTo().assertIsDisplayed()
@@ -55,7 +55,7 @@ class SettingsScreenTest {
             SettingsContent(
                 uiState = uiState,
                 onBackClick = {},
-                onDarkModeChanged = {},
+                onThemeModeChanged = {},
                 onSoundChanged = {},
                 onHapticsChanged = {},
                 onDefaultDifficultyChanged = {},

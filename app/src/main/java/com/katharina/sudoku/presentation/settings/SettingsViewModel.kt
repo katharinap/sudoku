@@ -3,6 +3,7 @@ package com.katharina.sudoku.presentation.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,9 +36,9 @@ class SettingsViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun onDarkModeChanged(isDarkMode: Boolean?) {
+    fun onThemeModeChanged(themeMode: ThemeMode) {
         viewModelScope.launch {
-            repository.updateDarkMode(isDarkMode)
+            repository.updateThemeMode(themeMode)
         }
     }
 

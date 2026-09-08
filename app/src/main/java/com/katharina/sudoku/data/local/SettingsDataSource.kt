@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -15,7 +16,7 @@ class SettingsDataSource @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
     object Keys {
-        val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
         val IS_SOUND_ENABLED = booleanPreferencesKey("is_sound_enabled")
         val IS_HAPTICS_ENABLED = booleanPreferencesKey("is_haptics_enabled")
         val DEFAULT_DIFFICULTY = stringPreferencesKey("default_difficulty")
@@ -25,7 +26,13 @@ class SettingsDataSource @Inject constructor(
 
     val userSettings: Flow<UserSettings> = dataStore.data.map { preferences ->
         UserSettings(
-            isDarkMode = preferences[Keys.IS_DARK_MODE],
+            themeMode = preferences[Keys.THEME_MODE]?.let {
+                try {
+                    ThemeMode.valueOf(it)
+                } catch (e: IllegalArgumentException) {
+                    ThemeMode.SYSTEM
+                }
+            } ?: ThemeMode.SYSTEM,
             isSoundEnabled = preferences[Keys.IS_SOUND_ENABLED] ?: true,
             isHapticsEnabled = preferences[Keys.IS_HAPTICS_ENABLED] ?: true,
             defaultDifficulty = preferences[Keys.DEFAULT_DIFFICULTY]?.let {
@@ -36,13 +43,9 @@ class SettingsDataSource @Inject constructor(
         )
     }
 
-    suspend fun updateDarkMode(isDarkMode: Boolean?) {
+    suspend fun updateThemeMode(themeMode: ThemeMode) {
         dataStore.edit { preferences ->
-            if (isDarkMode == null) {
-                preferences.remove(Keys.IS_DARK_MODE)
-            } else {
-                preferences[Keys.IS_DARK_MODE] = isDarkMode
-            }
+            preferences[Keys.THEME_MODE] = themeMode.name
         }
     }
 

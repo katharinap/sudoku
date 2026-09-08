@@ -3,6 +3,7 @@ package com.katharina.sudoku.presentation.settings
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.model.UserSettings
 import com.katharina.sudoku.domain.repository.SettingsRepository
 import io.mockk.coEvery
@@ -34,7 +35,7 @@ class SettingsViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         every { repository.userSettings } returns settingsFlow
-        coEvery { repository.updateDarkMode(any()) } returns Unit
+        coEvery { repository.updateThemeMode(any()) } returns Unit
         coEvery { repository.updateSoundEnabled(any()) } returns Unit
         coEvery { repository.updateHapticsEnabled(any()) } returns Unit
         coEvery { repository.updateDefaultDifficulty(any()) } returns Unit
@@ -68,10 +69,10 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `onDarkModeChanged calls repository`() = runTest {
-        viewModel.onDarkModeChanged(true)
+    fun `onThemeModeChanged calls repository`() = runTest {
+        viewModel.onThemeModeChanged(ThemeMode.DARK)
         runCurrent()
-        coVerify { repository.updateDarkMode(true) }
+        coVerify { repository.updateThemeMode(ThemeMode.DARK) }
     }
 
     @Test

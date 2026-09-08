@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -37,7 +38,7 @@ class SettingsDataSourceTest {
     fun `initial settings are defaults`() = runBlocking {
         val settings = settingsDataSource.userSettings.first()
         
-        assertThat(settings.isDarkMode).isNull()
+        assertThat(settings.themeMode).isEqualTo(ThemeMode.SYSTEM)
         assertThat(settings.isSoundEnabled).isTrue()
         assertThat(settings.isHapticsEnabled).isTrue()
         assertThat(settings.defaultDifficulty).isEqualTo(Difficulty.EASY)
@@ -46,14 +47,14 @@ class SettingsDataSourceTest {
     }
 
     @Test
-    fun `updateDarkMode updates setting`() = runBlocking {
-        settingsDataSource.updateDarkMode(true)
+    fun `updateThemeMode updates setting`() = runBlocking {
+        settingsDataSource.updateThemeMode(ThemeMode.DARK)
         var settings = settingsDataSource.userSettings.first()
-        assertThat(settings.isDarkMode).isTrue()
+        assertThat(settings.themeMode).isEqualTo(ThemeMode.DARK)
 
-        settingsDataSource.updateDarkMode(null)
+        settingsDataSource.updateThemeMode(ThemeMode.SYSTEM)
         settings = settingsDataSource.userSettings.first()
-        assertThat(settings.isDarkMode).isNull()
+        assertThat(settings.themeMode).isEqualTo(ThemeMode.SYSTEM)
     }
 
     @Test

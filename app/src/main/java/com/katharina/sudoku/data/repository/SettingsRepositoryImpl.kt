@@ -2,6 +2,7 @@ package com.katharina.sudoku.data.repository
 
 import com.katharina.sudoku.data.local.SettingsDataSource
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.domain.model.UserSettings
 import com.katharina.sudoku.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,8 +14,8 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override val userSettings: Flow<UserSettings> = dataSource.userSettings
 
-    override suspend fun updateDarkMode(isDarkMode: Boolean?) {
-        dataSource.updateDarkMode(isDarkMode)
+    override suspend fun updateThemeMode(themeMode: ThemeMode) {
+        dataSource.updateThemeMode(themeMode)
     }
 
     override suspend fun updateSoundEnabled(isEnabled: Boolean) {

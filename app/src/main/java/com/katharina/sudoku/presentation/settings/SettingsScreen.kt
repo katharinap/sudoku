@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.katharina.sudoku.R
 import com.katharina.sudoku.domain.model.Difficulty
+import com.katharina.sudoku.domain.model.ThemeMode
 import com.katharina.sudoku.ui.theme.SudokuTheme
 
 @Composable
@@ -48,7 +49,7 @@ fun SettingsScreen(
     SettingsContent(
         uiState = uiState,
         onBackClick = onBackClick,
-        onDarkModeChanged = viewModel::onDarkModeChanged,
+        onThemeModeChanged = viewModel::onThemeModeChanged,
         onSoundChanged = viewModel::onSoundChanged,
         onHapticsChanged = viewModel::onHapticsChanged,
         onDefaultDifficultyChanged = viewModel::onDefaultDifficultyChanged,
@@ -63,7 +64,7 @@ fun SettingsScreen(
 fun SettingsContent(
     uiState: SettingsUiState,
     onBackClick: () -> Unit,
-    onDarkModeChanged: (Boolean?) -> Unit,
+    onThemeModeChanged: (ThemeMode) -> Unit,
     onSoundChanged: (Boolean) -> Unit,
     onHapticsChanged: (Boolean) -> Unit,
     onDefaultDifficultyChanged: (Difficulty) -> Unit,
@@ -104,14 +105,9 @@ fun SettingsContent(
                     .verticalScroll(rememberScrollState())
             ) {
                 SettingsGroup(title = "Appearance") {
-                    ListItem(
-                        headlineContent = { Text("Dark Mode") },
-                        trailingContent = {
-                            Switch(
-                                checked = uiState.settings.isDarkMode == true,
-                                onCheckedChange = { onDarkModeChanged(it) }
-                            )
-                        }
+                    ThemeModeDropdown(
+                        currentThemeMode = uiState.settings.themeMode,
+                        onThemeModeSelected = onThemeModeChanged
                     )
                 }
 
@@ -186,6 +182,49 @@ private fun SettingsGroup(
 }
 
 @Composable
+private fun ThemeModeDropdown(
+    currentThemeMode: ThemeMode,
+    onThemeModeSelected: (ThemeMode) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        ListItem(
+            headlineContent = { Text("App Theme") },
+            supportingContent = { 
+                Text(when(currentThemeMode) {
+                    ThemeMode.LIGHT -> "Light"
+                    ThemeMode.DARK -> "Dark"
+                    ThemeMode.SYSTEM -> "System Default"
+                })
+            },
+            modifier = Modifier.clickable { expanded = true }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            ThemeMode.entries.forEach { mode ->
+                DropdownMenuItem(
+                    text = { 
+                        Text(when(mode) {
+                            ThemeMode.LIGHT -> "Light"
+                            ThemeMode.DARK -> "Dark"
+                            ThemeMode.SYSTEM -> "System Default"
+                        })
+                    },
+                    onClick = {
+                        onThemeModeSelected(mode)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun DifficultyDropdown(
     currentDifficulty: Difficulty,
     onDifficultySelected: (Difficulty) -> Unit
@@ -223,7 +262,7 @@ fun SettingsScreenPreview() {
         SettingsContent(
             uiState = SettingsUiState(isLoading = false),
             onBackClick = {},
-            onDarkModeChanged = {},
+            onThemeModeChanged = {},
             onSoundChanged = {},
             onHapticsChanged = {},
             onDefaultDifficultyChanged = {},
