@@ -81,4 +81,14 @@ object SudokuValidator {
 
         return conflicts.toList()
     }
+
+    /**
+     * Finds all positions where the user-entered value does not match the unique solution.
+     */
+    fun findMismatches(board: SudokuBoard): List<Position> {
+        return board.cells.filter { cell ->
+            val value = cell.value
+            value != null && !cell.isFixed && value != cell.solutionValue
+        }.map { it.position }
+    }
 }

@@ -66,7 +66,11 @@ class SudokuSolverTest {
             0, 0, 0, 0, 8, 0, 0, 7, 9
         )
         val cells = values.mapIndexed { i, value ->
-            Cell(Position(i / 9, i % 9), value = if (value == 0) null else value)
+            Cell(
+                position = Position(i / 9, i % 9),
+                value = if (value == 0) null else value,
+                solutionValue = 1 // Dummy
+            )
         }
         return SudokuBoard(cells)
     }
@@ -84,7 +88,11 @@ class SudokuSolverTest {
             0, 9, 0, 0, 0, 0, 4, 0, 0
         )
         val cells = values.mapIndexed { i, value ->
-            Cell(Position(i / 9, i % 9), value = if (value == 0) null else value)
+            Cell(
+                position = Position(i / 9, i % 9),
+                value = if (value == 0) null else value,
+                solutionValue = 1 // Dummy
+            )
         }
         return SudokuBoard(cells)
     }

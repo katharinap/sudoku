@@ -177,7 +177,7 @@ fun SudokuCellPreview() {
     SudokuTheme {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SudokuCell(
-                cell = Cell(Position(0, 0), value = 5, isFixed = true),
+                cell = Cell(Position(0, 0), value = 5, solutionValue = 5, isFixed = true),
                 isSelected = false,
                 isPeerHighlighted = false,
                 isSameNumberHighlighted = false,
@@ -185,7 +185,7 @@ fun SudokuCellPreview() {
                 onClick = {}
             )
             SudokuCell(
-                cell = Cell(Position(0, 0), value = 3, isFixed = false),
+                cell = Cell(Position(0, 0), value = 3, solutionValue = 5, isFixed = false),
                 isSelected = true,
                 isPeerHighlighted = false,
                 isSameNumberHighlighted = false,
@@ -193,7 +193,7 @@ fun SudokuCellPreview() {
                 onClick = {}
             )
             SudokuCell(
-                cell = Cell(Position(0, 0), notes = setOf(1, 2, 5, 9)),
+                cell = Cell(Position(0, 0), notes = setOf(1, 2, 5, 9), solutionValue = 5),
                 isSelected = false,
                 isPeerHighlighted = true,
                 isSameNumberHighlighted = false,

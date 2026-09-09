@@ -22,27 +22,28 @@ class SudokuCarverTest {
     }
 
     private fun verifyCarve(difficulty: Difficulty, expectedClueRange: IntRange) {
-        val solvedBoard = SudokuGenerator.generateSolvedBoard()
-        val carvedBoard = SudokuCarver.carve(solvedBoard, difficulty)
+        val carvedBoard = SudokuCarver.generate(difficulty)
         
         val clueCount = carvedBoard.cells.count { it.value != null }
         
         // Clue count should be within range
         // Note: Sometimes it might be slightly higher if removing any more would result in non-unique solution
-        assertThat(clueCount).run {
-            if (difficulty != Difficulty.EXPERT) {
-                isAtLeast(expectedClueRange.first)
-            }
-            isAtMost(81)
-        }
+        assertThat(clueCount).isAtLeast(expectedClueRange.first)
+        assertThat(clueCount).isAtMost(expectedClueRange.last + 5) // Allow some buffer for uniqueness
         
         // Should have exactly one solution
         assertThat(SudokuSolver.countSolutions(carvedBoard, limit = 2)).isEqualTo(1)
         
+        // All cells should have a solutionValue
+        carvedBoard.cells.forEach { cell ->
+            assertThat(cell.solutionValue).isIn(1..9)
+        }
+
         // All filled cells should be marked as fixed
         carvedBoard.cells.forEach { cell ->
             if (cell.value != null) {
                 assertThat(cell.isFixed).isTrue()
+                assertThat(cell.value).isEqualTo(cell.solutionValue)
             } else {
                 assertThat(cell.isFixed).isFalse()
             }

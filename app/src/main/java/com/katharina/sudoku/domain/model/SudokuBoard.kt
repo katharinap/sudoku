@@ -53,7 +53,7 @@ data class SudokuBoard(
     companion object {
         fun empty(): SudokuBoard {
             val cells = (0..80).map { i ->
-                Cell(Position(i / 9, i % 9))
+                Cell(Position(i / 9, i % 9), solutionValue = 1)
             }
             return SudokuBoard(cells)
         }

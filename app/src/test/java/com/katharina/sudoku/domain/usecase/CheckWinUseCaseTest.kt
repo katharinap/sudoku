@@ -24,7 +24,7 @@ class CheckWinUseCaseTest {
             3, 4, 5, 2, 8, 6, 1, 7, 9
         )
         val cells = solvedValues.mapIndexed { i, value ->
-            Cell(Position(i / 9, i % 9), value = value)
+            Cell(Position(i / 9, i % 9), value = value, solutionValue = value)
         }
         val board = SudokuBoard(cells)
         

@@ -71,6 +71,17 @@ class SudokuValidatorTest {
         assertThat(conflicts).containsExactly(Position(0, 0), Position(0, 1))
     }
 
+    @Test
+    fun `findMismatches detects user values that don't match solution`() {
+        val board = SudokuBoard.empty()
+            .withUpdatedCell(Position(0, 0)) { it.copy(value = 5, solutionValue = 9) }
+            .withUpdatedCell(Position(0, 1)) { it.copy(value = 5, solutionValue = 5) } // Correct match
+            .withUpdatedCell(Position(0, 2)) { it.copy(value = 3, solutionValue = 3, isFixed = true) } // Fixed mismatch (should be ignored)
+
+        val mismatches = SudokuValidator.findMismatches(board)
+        assertThat(mismatches).containsExactly(Position(0, 0))
+    }
+
     private fun createSolvedBoard(): SudokuBoard {
         val solvedValues = listOf(
             5, 3, 4, 6, 7, 8, 9, 1, 2,
@@ -84,7 +95,12 @@ class SudokuValidatorTest {
             3, 4, 5, 2, 8, 6, 1, 7, 9
         )
         val cells = solvedValues.mapIndexed { i, value ->
-            Cell(Position(i / 9, i % 9), value = value, isFixed = true)
+            Cell(
+                position = Position(i / 9, i % 9),
+                value = value,
+                solutionValue = value,
+                isFixed = true
+            )
         }
         return SudokuBoard(cells)
     }

@@ -17,14 +17,16 @@ object SudokuCarver {
         }
 
     /**
-     * Removes cells from a solved board while ensuring a unique solution exists.
-     * The number of remaining cells will target the range specified by [difficulty].
+     * Generates a new Sudoku puzzle for the given [difficulty].
+     * It starts with a fully solved board and removes cells while ensuring a unique solution.
      */
-    fun carve(solvedBoard: SudokuBoard, difficulty: Difficulty): SudokuBoard {
+    fun generate(difficulty: Difficulty): SudokuBoard {
+        val solvedBoard = SudokuGenerator.generateSolvedBoard()
         val targetRange = difficulty.targetClues
         val targetClues = Random.nextInt(targetRange.first, targetRange.last + 1)
         
         val cells = IntArray(81) { solvedBoard.cells[it].value ?: 0 }
+        val solution = IntArray(81) { solvedBoard.cells[it].solutionValue }
         val positions = (0..80).shuffled()
         
         var currentClues = 81
@@ -53,6 +55,7 @@ object SudokuCarver {
             Cell(
                 position = Position(i / 9, i % 9),
                 value = value,
+                solutionValue = solution[i],
                 isFixed = value != null
             )
         }

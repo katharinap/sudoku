@@ -13,7 +13,11 @@ object SudokuGenerator {
         val cells = IntArray(81)
         fillBoard(cells, 0)
         val boardCells = cells.mapIndexed { index, value ->
-            Cell(Position(index / 9, index % 9), value = value)
+            Cell(
+                position = Position(index / 9, index % 9),
+                value = value,
+                solutionValue = value
+            )
         }
         return SudokuBoard(boardCells)
     }

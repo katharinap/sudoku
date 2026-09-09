@@ -98,7 +98,7 @@ class SudokuBoardTest {
 
     @Test
     fun `Cell throws exception for invalid value`() {
-        assertThrows<IllegalArgumentException> { Cell(Position(0, 0), value = 10) }
-        assertThrows<IllegalArgumentException> { Cell(Position(0, 0), value = 0) }
+        assertThrows<IllegalArgumentException> { Cell(Position(0, 0), value = 10, solutionValue = 1) }
+        assertThrows<IllegalArgumentException> { Cell(Position(0, 0), value = 0, solutionValue = 1) }
     }
 }

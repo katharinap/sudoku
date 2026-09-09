@@ -20,7 +20,7 @@ class SudokuCellAccessibilityTest {
 
     @Test
     fun sudokuCell_verifyContentDescription_fixedValue() {
-        val cell = Cell(Position(0, 0), value = 5, isFixed = true)
+        val cell = Cell(Position(0, 0), value = 5, solutionValue = 5, isFixed = true)
         
         composeTestRule.setContent {
             SudokuCell(
@@ -40,7 +40,7 @@ class SudokuCellAccessibilityTest {
 
     @Test
     fun sudokuCell_verifyContentDescription_notes() {
-        val cell = Cell(Position(1, 2), notes = setOf(1, 4, 9))
+        val cell = Cell(Position(1, 2), notes = setOf(1, 4, 9), solutionValue = 5)
         
         composeTestRule.setContent {
             SudokuCell(

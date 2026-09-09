@@ -403,20 +403,18 @@ class GameViewModelTest {
         }
 
     @Test
-    fun `onValidateBoard finds and highlights conflicts temporarily`() =
+    fun `onValidateBoard finds and highlights mismatches temporarily`() =
         runTest {
             try {
                 tearDown()
-                // Setup a board with a duplicate in the first row
-                val pos1 = Position(0, 0)
-                val pos2 = Position(0, 1)
-                val boardWithConflict =
+                // Setup a board where cell (0,0) has value 5 but solution is 9
+                val pos = Position(0, 0)
+                val boardWithMismatch =
                     SudokuBoard
                         .empty()
-                        .withUpdatedCell(pos1) { it.copy(value = 5) }
-                        .withUpdatedCell(pos2) { it.copy(value = 5) }
+                        .withUpdatedCell(pos) { it.copy(value = 5, solutionValue = 9) }
 
-                val savedGame = GameState(boardWithConflict, Difficulty.EASY, 0, 0)
+                val savedGame = GameState(boardWithMismatch, Difficulty.EASY, 0, 0)
                 every { repository.getGameState() } returns flowOf(savedGame)
 
                 viewModel =
@@ -435,8 +433,8 @@ class GameViewModelTest {
                 // Execute validation
                 viewModel.onValidateBoard()
 
-                // Verify conflicts are highlighted
-                assertThat(viewModel.uiState.value.conflictPositions).containsExactly(pos1, pos2)
+                // Verify mismatch is highlighted
+                assertThat(viewModel.uiState.value.conflictPositions).containsExactly(pos)
 
                 // Advance virtual time by 2 seconds
                 advanceTimeBy(2001.milliseconds)
@@ -453,7 +451,7 @@ class GameViewModelTest {
         try {
             tearDown()
             // Setup a full board (no empty cells -> no hints possible)
-            val fullBoard = SudokuBoard(List(81) { Cell(Position(it / 9, it % 9), value = 1) })
+            val fullBoard = SudokuBoard(List(81) { Cell(Position(it / 9, it % 9), value = 1, solutionValue = 1) })
             val savedGame = GameState(fullBoard, Difficulty.EASY, 0, 0)
             every { repository.getGameState() } returns flowOf(savedGame)
             every { getHintUseCase(any()) } returns null
@@ -483,10 +481,10 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `onValidateBoard sets message when no conflicts are found`() = runTest {
+    fun `onValidateBoard sets message when no errors found`() = runTest {
         try {
             tearDown()
-            // Setup an empty board (no values -> no conflicts possible)
+            // Setup an empty board (no values -> no errors possible)
             val emptyBoard = SudokuBoard.empty()
             val savedGame = GameState(emptyBoard, Difficulty.EASY, 0, 0)
             every { repository.getGameState() } returns flowOf(savedGame)
@@ -505,7 +503,7 @@ class GameViewModelTest {
 
             viewModel.onValidateBoard()
             
-            assertThat(viewModel.uiState.value.message).isEqualTo("No conflicts found")
+            assertThat(viewModel.uiState.value.message).isEqualTo("No errors found")
             assertThat(viewModel.uiState.value.conflictPositions).isEmpty()
 
         } finally {

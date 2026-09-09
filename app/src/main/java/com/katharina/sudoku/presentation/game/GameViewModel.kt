@@ -268,15 +268,15 @@ class GameViewModel
             val currentState = _uiState.value
             if (currentState.isComplete || currentState.isPaused) return
 
-            val conflicts = SudokuValidator.findConflicts(currentState.board).toSet()
-            if (conflicts.isNotEmpty()) {
-                _uiState.update { it.copy(conflictPositions = conflicts) }
+            val mismatches = SudokuValidator.findMismatches(currentState.board).toSet()
+            if (mismatches.isNotEmpty()) {
+                _uiState.update { it.copy(conflictPositions = mismatches) }
                 viewModelScope.launch(defaultDispatcher) {
                     delay(2000.milliseconds)
                     _uiState.update { it.copy(conflictPositions = emptySet()) }
                 }
             } else {
-                _uiState.update { it.copy(message = "No conflicts found") }
+                _uiState.update { it.copy(message = "No errors found") }
             }
         }
 
